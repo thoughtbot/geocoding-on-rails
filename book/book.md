@@ -7,6 +7,8 @@
 
 <<[introduction/introduction.md]
 
+<<[introduction/definition.md]
+
 \mainmatter
 \part{Tools}
 
