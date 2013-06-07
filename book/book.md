@@ -10,4 +10,6 @@
 \mainmatter
 \part{Tools}
 
+<<[tools/selection.md]
+
 <<[tools/gems.md]
