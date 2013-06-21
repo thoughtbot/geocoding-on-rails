@@ -29,4 +29,5 @@ Using PostGIS with Rails requires installing the [ActiveRecord PostGIS
 Adapter][activerecord-postgis-adapter] and [RGeo][rgeo] gems. To learn more
 about PostGIS, consider purchasing a copy of [PostGIS in
 Action][postgis-in-action-book].  For an example of configuring your Rails
-application for use with PostGIS, see [Using PostGIS with Rails](#).
+application for use with PostGIS, see [Using PostGIS in Your
+Rails Application](#using-postgis-in-your-rails-application).
