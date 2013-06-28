@@ -12,6 +12,8 @@
 \mainmatter
 \part{Strategies}
 
+<<[strategies/usage.md]
+
 <<[strategies/local_data.md]
 
 <<[strategies/external_services.md]
