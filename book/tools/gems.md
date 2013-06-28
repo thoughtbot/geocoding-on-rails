@@ -27,12 +27,11 @@ provides hooks into `ActiveRecord` and allows for distance queries.
 ### Area
 
 [Area](https://github.com/jgv/area) uses public domain data (instead of relying
-on an external service) to convert between zip codes to latitude/longitude
-(and vice versa).
+on an external service) to convert from cities to zip codes to coordinates.
 
 ### GeoIP
 
 [GeoIP](https://github.com/cjheath/geoip) is a gem which searches the GeoIP
 database for a host or IP address and returns location information (including
-latitude and longitude). MaxMind provides free copies of its data as well as a
+coordinates). MaxMind provides free copies of its data as well as a
 [subscription service](http://www.maxmind.com/en/geolocation_landing).

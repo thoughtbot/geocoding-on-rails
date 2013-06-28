@@ -14,3 +14,21 @@ requests per day, respectively. Client-side requests to the Google Geocoding API
 is a paid service with a rate limit of 100,000 requests per day. Other good
 options for paid services are [Yahoo BOSS](http://developer.yahoo.com/boss/geo/)
 and [GeoCoder.ca](http://geocoder.ca/?services=1) (US and Canada only).
+
+### Calculating Coordinates
+
+Gems like [Geocoder](#geocoder) provide a simple interface for converting any
+string to a coodinate. Based on the external service, it will have varying
+levels of accuracy but is significantly better than relying on local data
+because of the external service's ability to infer information from the
+string.
+
+```ruby
+Geocoder.search('Logan Airport').first.coordinates # [42.36954300000001, -71.020061]
+Geocoder.search('washington dc').first.coordinates # [38.8951118, -77.0363658]
+```
+
+External services vary in support for points of interest (like hotels and
+airports rather than addresses) but will provide results for most types of
+queries. Geocoding with an external service will be slower - oftentimes it
+will take anywhere between 50ms and 150ms to geocode a string.

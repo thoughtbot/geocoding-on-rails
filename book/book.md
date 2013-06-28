@@ -12,9 +12,9 @@
 \mainmatter
 \part{Strategies}
 
-<<[strategies/external_services.md]
-
 <<[strategies/local_data.md]
+
+<<[strategies/external_services.md]
 
 <<[strategies/web_requests.md]
 
