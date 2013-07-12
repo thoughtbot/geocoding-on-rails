@@ -11,6 +11,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 20130712205530) do
+
+  create_table "locations", force: true do |t|
+    t.string   "name"
+    t.integer  "store_number"
+    t.string   "phone_number"
+    t.string   "street_line_1"
+    t.string   "street_line_2"
+    t.string   "city"
+    t.string   "state"
+    t.string   "postal_code"
+    t.string   "country_code"
+    t.decimal  "latitude",      precision: 15, scale: 10
+    t.decimal  "longitude",     precision: 15, scale: 10
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "locations", ["store_number"], name: "index_locations_on_store_number", unique: true
 
 end
