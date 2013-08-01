@@ -15,7 +15,7 @@ FactoryGirl.define do
       street_line_1 '36 2nd St.'
       city 'San Francisco'
       state 'CA'
-      postal_code '94104'
+      postal_code '94105'
       country_code 'US'
     end
   end

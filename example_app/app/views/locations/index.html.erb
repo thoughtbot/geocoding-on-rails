@@ -1,5 +1,5 @@
 <%= form_for :search, method: :get, url: root_path do |form| %>
-  <%= form.label :value, 'Search by Postal Code' %>
+  <%= form.label :value, 'Search by Location' %>
   <%= form.text_field :value %>
   <%= form.submit 'Search' %>
 <% end %>
