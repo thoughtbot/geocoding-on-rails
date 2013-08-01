@@ -25,3 +25,15 @@
 <<[tools/selection.md]
 
 <<[tools/gems.md]
+
+\part{Application Development}
+
+<<[application_development/introduction.md]
+
+<<[application_development/local_search_data.md]
+
+<<[application_development/external_search_data.md]
+
+<<[application_development/searching_with_browser_geocoding.md]
+
+<<[application_development/searching_with_ip_based_geocoding.md]

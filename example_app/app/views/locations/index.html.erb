@@ -1,0 +1,18 @@
+<%= form_for :search, method: :get, url: root_path do |form| %>
+  <%= form.label :value, 'Search by Postal Code' %>
+  <%= form.text_field :value %>
+  <%= form.submit 'Search' %>
+<% end %>
+
+<ul class="locations">
+  <% @locations.each do |location| %>
+    <li data-id="<%= location.id %>">
+      <p><%= location.name %></p>
+      <p>
+        <%= location.street_line_1 %><br>
+        <%= location.street_line_2 %><br>
+        <%= location.city %>, <%= location.state %> <%= location.postal_code %>
+      </p>
+    </li>
+  <% end %>
+</ul>
