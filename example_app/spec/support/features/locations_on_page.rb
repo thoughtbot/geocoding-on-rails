@@ -6,6 +6,11 @@ class LocationsOnPage
     visit root_path
   end
 
+  def search(value)
+    fill_in 'Search by Postal Code', with: value
+    click_on 'Search'
+  end
+
   def include?(location)
     locations.include? location
   end

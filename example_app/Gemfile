@@ -11,6 +11,8 @@ gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 gem 'ruby-progressbar'
+gem 'geocoder'
+gem 'area'
 
 group :development, :test do
   gem 'rspec-rails', '~> 2.14.0'

@@ -1,3 +1,9 @@
+<%= form_for :search, method: :get, url: root_path do |form| %>
+  <%= form.label :value, 'Search by Postal Code' %>
+  <%= form.text_field :value %>
+  <%= form.submit 'Search' %>
+<% end %>
+
 <ul class="locations">
   <% @locations.each do |location| %>
     <li data-id="<%= location.id %>">
