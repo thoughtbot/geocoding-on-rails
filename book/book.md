@@ -34,6 +34,8 @@
 
 <<[application_development/external_search_data.md]
 
+<<[application_development/geocode_existing_data.md]
+
 <<[application_development/searching_with_browser_geocoding.md]
 
 <<[application_development/searching_with_ip_based_geocoding.md]
