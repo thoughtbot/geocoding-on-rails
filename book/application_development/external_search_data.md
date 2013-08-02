@@ -11,10 +11,10 @@ and maps provide value.
 
 The controller changes very little; instead of converting the search string (a
 postal code) to coordinates, we instead pass the search string directly to
-`Location.near`, which will handle the geocoding. Because the gem is hitting
-an external service, it doesn't need to follow a specific format; the service
-will do its best to calculate coordinates as best it can. This removes the
-restriction of only searching by postal code, allowing guests to search
+`Location.near`, which will handle the geocoding. Because the Geocoder gem is
+hitting an external service, it doesn't need to follow a specific format: the
+service will calculate coordinates as best it can. This removes the
+restriction of only searching by postal code, allowing users to search
 locations in a much more intuitive fashion.
 
 ` app/controllers/locations_controller.rb@50bf859
