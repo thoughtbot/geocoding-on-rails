@@ -7,7 +7,7 @@ class LocationsOnPage
   end
 
   def search(value)
-    fill_in 'Search by Postal Code', with: value
+    fill_in 'Search by Location', with: value
     click_on 'Search'
   end
 
