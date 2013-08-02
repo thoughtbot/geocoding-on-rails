@@ -21,11 +21,11 @@ locations in a much more intuitive fashion.
 
 ### Changes to the Model
 
-The model changes in two areas: `after_validation` calls the `#geocode`
-method (provided by the Geocoder gem) and the model now considers itself
-geocoded by `#address` instead of `#country_code`. Every time the model is
-validated, it will hit an external service and update its coordinates; while
-naive, it works well and is significantly more accurate than geocoding by
-postal code.
+The model changes in two areas: `after_validation` calls the `#geocode` method
+(provided by the Geocoder gem) and the model now considers itself geocoded by
+`#address` instead of `#country_code`. Every time the model is validated, a
+request will be made to an external service to update the model's coordinates.
+While naive, it works well and is significantly more accurate than geocoding
+by postal code.
 
 ` app/models/location.rb@50bf859:3,12
