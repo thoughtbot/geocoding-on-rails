@@ -3,8 +3,10 @@ class LocationsController < ApplicationController
     @locations = if search_value.present?
                    Location.near(search_value)
                  else
-                   Location.all
+                   Location.scoped
                  end
+
+    @locations = @locations.limit(1000)
   end
 
   private
