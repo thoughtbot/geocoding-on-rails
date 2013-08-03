@@ -4,15 +4,26 @@
   <%= form.submit 'Search' %>
 <% end %>
 
+<div id="map"></div>
+
 <ul class="locations">
   <% @locations.each do |location| %>
-    <li data-id="<%= location.id %>">
-      <p><%= location.name %></p>
-      <p>
-        <%= location.street_line_1 %><br>
-        <%= location.street_line_2 %><br>
-        <%= location.city %>, <%= location.state %> <%= location.postal_code %>
-      </p>
-    </li>
+    <%= render location %>
   <% end %>
 </ul>
+
+<% content_for :javascript do %>
+  <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?sensor=false"></script>
+
+  <%= javascript_tag do %>
+    $(function() {
+      var mapper = new ExampleApp.Mapper('#map');
+
+      $('[data-latitude]').each(function(index, element) {
+        mapper.addCoordinates($(element).attr('data-latitude'), $(element).attr('data-longitude'));
+      });
+
+      mapper.render();
+    });
+  <% end %>
+<% end %>

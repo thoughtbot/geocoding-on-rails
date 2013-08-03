@@ -13,6 +13,7 @@ gem 'jbuilder', '~> 1.2'
 gem 'ruby-progressbar'
 gem 'geocoder'
 gem 'area'
+gem 'neat'
 
 group :development, :test do
   gem 'rspec-rails', '~> 2.14.0'

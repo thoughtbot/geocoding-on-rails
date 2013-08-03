@@ -1,0 +1,14 @@
+<li class="location" data-id="<%= location.id %>" data-latitude="<%= location.latitude %>" data-longitude="<%= location.longitude %>">
+  <header>
+    <h1 data-role="name"><%= location.name %></h1>
+    <% if location.respond_to?(:distance) %>
+      <h2 data-role="distance"><%= location.distance.round(1) %> mi</h2>
+    <% end %>
+  </header>
+  <section>
+    <section class="location-info">
+      <p data-role="address"><%= location.address %></p><br>
+      <p data-role="phone-number"><%= link_to location.phone_number, "tel:#{location.phone_number}" %></p>
+    </section>
+  </section>
+</li>

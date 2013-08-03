@@ -32,6 +32,8 @@
 
 <<[application_development/local_search_data.md]
 
+<<[application_development/plot_points_on_a_map.md]
+
 <<[application_development/external_search_data.md]
 
 <<[application_development/geocode_existing_data.md]
