@@ -4,8 +4,6 @@ class Location < ActiveRecord::Base
 
   after_validation :geocode
 
-  private
-
   def address
     [street_line_1, street_line_2, city, state,
       postal_code, country_code].compact.join ', '

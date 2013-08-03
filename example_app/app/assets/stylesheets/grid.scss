@@ -1,0 +1,77 @@
+@import 'bourbon';
+@import 'grid-settings';
+@import 'neat';
+
+.container {
+  @include outer-container;
+}
+
+form {
+  @include row();
+
+  @include media($default) {
+    input[type='text'] {
+      @include shift(1);
+      @include span-columns(8);
+    }
+
+    input[type='submit'] {
+      @include span-columns(2);
+    }
+  }
+
+  @include media($tablet) {
+    input[type='text'] {
+      @include span-columns(6);
+    }
+
+    input[type='submit'] {
+      @include span-columns(2);
+    }
+  }
+
+  @include media($mobile) {
+    input[type='text'] {
+      @include span-columns(5);
+    }
+
+    input[type='submit'] {
+      @include span-columns(3);
+    }
+  }
+}
+
+ul.locations {
+  li.location {
+    @include media($default) {
+      @include span-columns(4);
+      @include omega(3n);
+    }
+
+    @include media($tablet) {
+      @include span-columns(4);
+      @include omega(2n);
+    }
+
+    @include media($mobile) {
+      @include span-columns(8);
+    }
+  }
+
+  li.location {
+    > header {
+      @include row();
+
+      h1 { @include span-columns(3 of 4); }
+      h2 { @include span-columns(1 of 4); }
+    }
+
+    .image-wrapper {
+      @include span-columns(1 of 4);
+    }
+
+    .location-info {
+      @include span-columns(3 of 4);
+    }
+  }
+}
