@@ -7,12 +7,10 @@
 
 <<[introduction/introduction.md]
 
-<<[introduction/definition.md]
-
 \mainmatter
 \part{Strategies}
 
-<<[strategies/usage.md]
+<<[strategies/geocoding_in_rails_applications.md]
 
 <<[strategies/local_data.md]
 
