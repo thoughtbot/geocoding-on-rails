@@ -16,6 +16,7 @@ gem 'area'
 gem 'neat'
 
 group :development, :test do
+  gem 'konacha'
   gem 'rspec-rails', '~> 2.14.0'
 end
 
@@ -23,6 +24,7 @@ group :test do
   gem 'capybara', '~> 2.1.0'
   gem 'database_cleaner', '~> 1.0.1'
   gem 'factory_girl_rails', '~> 4.1.0'
+  gem 'poltergeist', '~> 1.1'
   gem 'shoulda-matchers', '~> 2.2.0'
 end
 
