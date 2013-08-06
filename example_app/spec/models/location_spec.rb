@@ -9,12 +9,7 @@ describe Location, '#valid?' do
     location = Location.new(street_line_1: 'Undefined address')
     location.valid?
 
-    expect(location.latitude).to eq geocoder_stub.latitude
-    expect(location.longitude).to eq geocoder_stub.longitude
-  end
-
-  def geocoder_stub
-    result_hash = Geocoder::Lookup::Test.read_stub('nonexistent stub').first
-    OpenStruct.new(result_hash)
+    expect(location.latitude).to eq geocoder_stub('nonexistent').latitude
+    expect(location.longitude).to eq geocoder_stub('nonexistent').longitude
   end
 end

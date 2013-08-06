@@ -1,6 +1,6 @@
 <%= form_for :search, method: :get, url: root_path do |form| %>
   <%= form.label :value, 'Search by Location' %>
-  <%= form.text_field :value %>
+  <%= form.text_field :value, placeholder: @current_location_by_ip %>
   <%= form.submit 'Search' %>
 <% end %>
 

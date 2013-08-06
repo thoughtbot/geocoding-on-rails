@@ -11,6 +11,10 @@ class LocationsOnPage
     click_on 'Search'
   end
 
+  def suggested_search_value
+    field_labeled('Search by Location')['placeholder']
+  end
+
   def include?(location)
     locations.include? location
   end
