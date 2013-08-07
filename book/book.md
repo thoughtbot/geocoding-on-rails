@@ -39,3 +39,5 @@
 <<[application_development/searching_with_ip_based_geocoding.md]
 
 <<[application_development/searching_with_browser_geocoding.md]
+
+<<[application_development/improving_application_performance.md]
