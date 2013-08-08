@@ -49,17 +49,43 @@ geocoded only if its address attributes have changed:
 
 ` app/models/location.rb@c7275e2
 
+### Speed Up Proximity Queries with PostGIS
 
-### Extend Your Database with PostGIS
+#### What is PostGIS?
 
 [PostGIS](http://postgis.net/) is a powerful spatial database extender for
-PostgreSQL. By extending your database with PostGIS, you can persist geographic
-objects and write spatial queries using PostGIS functions.
+PostgreSQL. Like PostgreSQL, it is free and open source. Adding PostGIS to
+your database enables persistence of geographic data and makes it possible to
+retrieve the data with spatial queries using PostGIS functions. While an
+exhaustive discussion of PostGIS is outside the scope of this book,
+its utility as a tool for speeding up database queries is worth mentioning here.
 
-While there are currently few up-to-date resources for using PostGIS with Rails
-applications in multiple environments, the challenges of installing and
-configuring PostGIS are worth tackling if significant gains in application
-performance may be won.
+#### Why is PostGIS Faster?
 
+PostGIS allows geocoded data to be persisted as points on a plane. Proximity
+queries using PostGIS are less expensive than non-spatial queries because
+locations, represented as geographic points, can be compared using the Pythagorean
+theorem. The Geocoder gem's `.near` method, by contrast, compares geographic
+coordinates on the fly using the [haversine
+formula](http://en.wikipedia.org/wiki/Haversine_formula).
+
+#### How Do I Use PostGIS?
+
+While there are currently few comprehensive and up-to-date resources for using
+PostGIS with Rails applications in multiple environments, the challenges of
+installing and configuring PostGIS are worth tackling if significant gains in
+application performance may be won.
+
+Using PostGIS with Rails requires installing the [ActiveRecord PostGIS
+Adapter](https://github.com/dazuma/activerecord-postgis-adapter) and
+[RGeo](https://github.com/dazuma/rgeo) gems. To perform proximity searches
+using PostGIS, you would add a column to your table of geocoded data to store
+a geographic point for each entry. (You would also have to write a rake task
+to populate the `geographic_point` column from the latitude and longitude.) You
+would use RGeo to configure the ActiveRecord model associated with the table of
+geocoded data, and you would write your proximity queries using the `ST_Distance`
+and `ST_DWithin` PostGIS functions.
+
+To learn more about PostGIS, consider purchasing a copy of [PostGIS in Action](http://www.manning.com/obe/).
 For an example of configuring your Rails application for use with PostGIS, see
-Using PostGIS with Rails, Tddium, and Heroku.
+[Using PostGIS with Rails](#).
