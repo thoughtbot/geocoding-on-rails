@@ -4,7 +4,7 @@
   <%= form.submit 'Search' %>
 <% end %>
 
-<div id="map"></div>
+<div id="map" style="height: 400px;"></div>
 
 <ul class="locations">
   <% @locations.each do |location| %>
@@ -13,14 +13,18 @@
 </ul>
 
 <% content_for :javascript do %>
-  <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?sensor=false"></script>
+  <script type="text/javascript"
+    src="//maps.googleapis.com/maps/api/js?sensor=false"></script>
 
   <%= javascript_tag do %>
     $(function() {
       var mapper = new ExampleApp.Mapper('#map');
 
       $('[data-latitude]').each(function(index, element) {
-        mapper.addCoordinates($(element).attr('data-latitude'), $(element).attr('data-longitude'));
+        mapper.addCoordinates(
+          $(element).attr('data-latitude'),
+          $(element).attr('data-longitude')
+        );
       });
 
       mapper.render();
