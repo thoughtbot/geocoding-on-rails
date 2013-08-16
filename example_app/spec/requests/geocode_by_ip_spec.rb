@@ -2,10 +2,16 @@ require 'spec_helper'
 
 describe 'Geocoding by IP address in the request' do
   it 'uses IP address to geocode' do
-    visit_homepage_as_ip '555.555.1.1'
-    geocoder_stub = geocoder_stub('555.555.1.1')
+    new_york_ip_address = '555.555.1.1'
+    request_geocoding_gatherer = double(
+      'Request Geocoding Gatherer',
+      current_location: 'New York, NY'
+    )
+    RequestGeocodingGatherer.stub(new: request_geocoding_gatherer)
 
-    expect(suggested_search_value).to eq [geocoder_stub.city, geocoder_stub.state].join ', '
+    visit_homepage_as_ip(new_york_ip_address)
+
+    expect(suggested_search_value).to eq 'New York, NY'
   end
 
   def visit_homepage_as_ip(ip_address)
