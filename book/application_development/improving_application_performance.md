@@ -24,11 +24,11 @@ The first three methods are called when setting, retrieving, and deleting
 key-value pairs. `store#keys` is invoked only when clearing out the cache;
 in this implementation, it returns an empty array.
 
-` app/models/geocoder_cache.rb@fe84d87
+` app/models/geocoder_cache.rb@bb2ba07
 
 Configure the cache store in an initializer:
 
-` config/initializers/geocoder.rb@fe84d87
+` config/initializers/geocoder.rb@bb2ba07
 
 ### Geocode Only When Necessary
 
