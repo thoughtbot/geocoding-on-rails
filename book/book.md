@@ -41,3 +41,13 @@
 <<[application_development/searching_with_browser_geocoding.md]
 
 <<[application_development/improving_application_performance.md]
+
+\part{Testing}
+
+<<[testing/techniques_overview.md]
+
+<<[testing/stubbing_requests_to_external_services.md]
+
+<<[testing/faking_the_ip_address.md]
+
+<<[testing/faking_an_external_service.md]
