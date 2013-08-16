@@ -29,5 +29,14 @@
 
       mapper.render();
     });
+
+    $(function() {
+      if (_.isEmpty($('#search_value').attr('placeholder'))) {
+        var currentLocation = new ExampleApp.CurrentLocation();
+        currentLocation.getLocation(function(location) {
+          $('#search_value').attr('placeholder', location);
+        })
+      }
+    });
   <% end %>
 <% end %>
