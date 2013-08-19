@@ -40,7 +40,15 @@
 
 <<[application_development/searching_with_browser_geocoding.md]
 
-<<[application_development/improving_application_performance.md]
+\part{Improving Application Performance}
+
+<<[improving_application_performance/introduction.md]
+
+<<[improving_application_performance/cache_results_from_external_requests.md]
+
+<<[improving_application_performance/geocode_only_when_necessary.md]
+
+<<[improving_application_performance/speed_up_proximity_queries_with_postgis.md]
 
 \part{Testing}
 
