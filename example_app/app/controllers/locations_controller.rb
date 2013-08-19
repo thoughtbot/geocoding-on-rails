@@ -5,7 +5,7 @@ class LocationsController < ApplicationController
   def index
     @current_location_by_ip = geocoded_request_information.current_location
     @locations = if search_value.present?
-                   Location.near(search_value)
+                   Location.search_near(search_value)
                  else
                    Location.all
                  end
