@@ -18,9 +18,4 @@ describe RequestGeocodingGatherer, '#current_location' do
     gatherer = RequestGeocodingGatherer.new(request)
     expect(gatherer.current_location).to eq ''
   end
-
-  def request_with_location(options)
-    location_info = { city: nil, state: nil }.merge(options)
-    double('request', location: double('location', location_info))
-  end
 end

@@ -8,22 +8,37 @@ class Location < ActiveRecord::Base
   validates :store_number, uniqueness: true
   geocoded_by :address
 
-  after_validation :set_coordinates, if: :address_changed?
+  after_validation :set_coordinates, if: :geocoding_necessary?
 
-  def self.geocode_with(location_geocoder)
-    self.geocoder = location_geocoder
+  def self.search_near(term)
+    coordinates = geocoding_service.coordinates(term)
+    near(coordinates)
   end
 
   def address
-    ADDRESS_FIELDS.map do |field|
-      send(field)
-    end.compact.join ', '
+    address_field_values.compact.join ', '
   end
 
   private
 
+  def address_field_values
+    ADDRESS_FIELDS.map { |field| send field }
+  end
+
   def address_changed?
     (changed & ADDRESS_FIELDS).any?
+  end
+
+  def geocoding_necessary?
+    if new_record?
+      missing_coordinates?
+    else
+      address_changed?
+    end
+  end
+
+  def missing_coordinates?
+    latitude.blank? || longitude.blank?
   end
 
   def set_coordinates
