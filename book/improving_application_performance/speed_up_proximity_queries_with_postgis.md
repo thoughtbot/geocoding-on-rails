@@ -27,14 +27,7 @@ application performance may be won.
 
 Using PostGIS with Rails requires installing the [ActiveRecord PostGIS
 Adapter](https://github.com/dazuma/activerecord-postgis-adapter) and
-[RGeo](https://github.com/dazuma/rgeo) gems. To perform proximity searches
-using PostGIS, you would add a column to your table of geocoded data to store
-a geographic point for each entry. (You would also have to write a rake task
-to populate the `geographic_point` column from the latitude and longitude.) You
-would use RGeo to configure the ActiveRecord model associated with the table of
-geocoded data, and you would write your proximity queries using the `ST_Distance`
-and `ST_DWithin` PostGIS functions.
-
-To learn more about PostGIS, consider purchasing a copy of [PostGIS in Action](http://www.manning.com/obe/).
+[RGeo](https://github.com/dazuma/rgeo) gems. To learn more about PostGIS,
+consider purchasing a copy of [PostGIS in Action](http://www.manning.com/obe/).
 For an example of configuring your Rails application for use with PostGIS, see
 [Using PostGIS with Rails](#).
