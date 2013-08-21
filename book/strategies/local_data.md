@@ -1,47 +1,21 @@
 ## Local Data
 
+The most basic approach to integrating geocoding functionality is to maintain a
+local resource which maps address information to geographic coordinates.
+
 ### Calculating Coordinates
 
-Gems like [Area](#area) provide a simple interface for converting city/state
-strings to zip codes, as well as zip codes to coordinates. It adds the
-methods `#to_zip` and `#to_latlon` to `String`.
+The [Area](#area) gem relies on public domain records and does not make external
+requests to geocode addresses. The gem provides a simple interface for converting
+zip codes to coordinates by adding the method `#to_latlon` to `String`:
 
 ```ruby
-'Boston, MA'.to_zip # ["02101", "02102", ...]
 '02101'.to_latlng # "42.370567, -71.026964"
 ```
 
-With two (awkward) steps, you can convert city and state into coordinates:
-
-```ruby
-class SearchTermParser
-  def initialize(search)
-    @search = search
-  end
-
-  def coordinates
-    lat_long_string.split(',').map(&:to_f)
-  end
-
-  private
-
-  def lat_long_string
-    (zip_codes_for_search.first || null_zip_code).to_latlon
-  end
-
-  def zip_codes_for_search
-    @search.to_zip
-  end
-
-  def null_zip_code
-    OpenStruct.new(to_latlon: '')
-  end
-end
-```
-
-The `SearchTermParser` only handles cities as written; handling zip codes adds
-another level of complexity. Because gems like this operate on static data, it
-also becomes quite easy to find flaws:
+Although it's possible to use Area to convert city and state to a zip code,
+such conversions are unreliable and error-prone because Area operates on static
+data:
 
 ```ruby
 'Washington DC'.to_zip # []
@@ -50,5 +24,5 @@ also becomes quite easy to find flaws:
 ```
 
 While the flaws in the data may be a deterrent to using gems which don't
-interact with an external service, they are very fast at handling data and
-work well for data that does not require interpretation like zip codes.
+interact with an external service, geocoding with Area is very fast and
+sufficient if you only need to geocode US zip codes.
