@@ -52,10 +52,6 @@
 
 \part{Testing}
 
-<<[testing/techniques_overview.md]
+<<[testing/introduction.md]
 
-<<[testing/stubbing_requests_to_external_services.md]
-
-<<[testing/faking_the_ip_address.md]
-
-<<[testing/faking_an_external_service.md]
+<<[testing/acceptance_tests.md]

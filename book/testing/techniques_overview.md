@@ -1,3 +1,0 @@
-## Techniques Overview
-
-STUB
