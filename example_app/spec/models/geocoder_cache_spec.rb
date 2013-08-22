@@ -1,14 +1,8 @@
 require 'spec_helper'
 
 describe GeocoderCache do
-  around do |example|
-    store, Rails.application.config.cache_store = Rails.application.config.cache_store, ActiveSupport::Cache.lookup_store(:memory_store)
-    silence_warnings { Object.const_set 'RAILS_CACHE', Rails.application.config.cache_store }
-
-    example.run
-
-    silence_warnings { Object.const_set 'RAILS_CACHE', store }
-    Rails.application.config.cache_store = store
+  before do
+    Rails.stub(:cache).and_return ActiveSupport::Cache.lookup_store(:memory_store)
   end
 
   it 'allows for cache assignment and retrieval' do
