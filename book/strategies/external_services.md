@@ -26,10 +26,10 @@ but will provide results for most types of queries.
 
 
 ```ruby
-Geocoder.search('Logan Airport').first.coordinates
+Geocoder.coordinates('Logan Airport')
 # [42.36954300000001, -71.020061]
 
-Geocoder.search('washington dc').first.coordinates
+Geocoder.coordinates('washington dc')
 # [38.8951118, -77.0363658]
 ```
 
