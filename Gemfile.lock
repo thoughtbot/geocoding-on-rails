@@ -1,16 +1,17 @@
 GIT
   remote: git@github.com:thoughtbot/paperback.git
-  revision: c77618376b4e49d0966008089583b6325ef286b7
+  revision: c0710a56a723a67e8c59dd4d28c8b42de1bc2634
   specs:
     paperback (0.0.1)
-      activesupport (~> 3.2.11)
+      activesupport (~> 4.0.0)
       aws-sdk (~> 1.10.0)
+      climate_control (~> 0.0.3)
       cocaine (~> 0.5.1)
+      coderay (~> 1.0.9)
       dotenv (~> 0.7.0)
-      hub (~> 1.10.5)
       kindlegen (~> 2.7.0)
+      mime-types (~> 1.23)
       nokogiri (~> 1.5.9)
-      pandoc-ruby (~> 0.6.0)
       pdf-reader (~> 1.3.2)
       redcarpet (~> 2.2.2)
       rmagick (~> 2.13.1)
@@ -21,10 +22,14 @@ GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (1.0.2)
-    activesupport (3.2.13)
-      i18n (= 0.6.1)
-      multi_json (~> 1.0)
+    activesupport (4.0.0)
+      i18n (~> 0.6, >= 0.6.4)
+      minitest (~> 4.2)
+      multi_json (~> 1.3)
+      thread_safe (~> 0.1)
+      tzinfo (~> 0.3.37)
     afm (0.2.0)
+    atomic (1.1.13)
     aws-sdk (1.10.0)
       json (~> 1.4)
       nokogiri (>= 1.4.4)
@@ -33,16 +38,17 @@ GEM
       activesupport (>= 3.0)
     cocaine (0.5.1)
       climate_control (>= 0.0.3, < 1.0)
+    coderay (1.0.9)
     dotenv (0.7.0)
-    hashery (2.1.0)
-    hub (1.10.6)
-    i18n (0.6.1)
+    hashery (2.1.1)
+    i18n (0.6.5)
     json (1.8.0)
     kindlegen (2.7.0)
       systemu
-    multi_json (1.7.6)
-    nokogiri (1.5.9)
-    pandoc-ruby (0.6.1)
+    mime-types (1.24)
+    minitest (4.7.5)
+    multi_json (1.7.9)
+    nokogiri (1.5.10)
     pdf-reader (1.3.3)
       Ascii85 (~> 1.0.0)
       afm (~> 0.2.0)
@@ -55,7 +61,10 @@ GEM
     systemu (2.5.2)
     terminal-table (1.4.5)
     thor (0.16.0)
+    thread_safe (0.1.2)
+      atomic
     ttfunk (1.0.3)
+    tzinfo (0.3.37)
     uuidtools (2.1.4)
 
 PLATFORMS
