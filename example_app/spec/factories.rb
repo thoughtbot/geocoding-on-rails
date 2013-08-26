@@ -12,11 +12,7 @@ FactoryGirl.define do
     end
 
     trait :in_boston_with_coordinates do
-      street_line_1 '12 Winter St.'
-      city 'Boston'
-      state 'MA'
-      postal_code '02111'
-      country_code 'US'
+      in_boston
       latitude 42.35548199999999
       longitude -71.0608386
     end
