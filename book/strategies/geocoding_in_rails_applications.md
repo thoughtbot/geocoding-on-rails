@@ -20,6 +20,6 @@ during the geocoding process; the gem then updates the object's latitude and
 longitude after calculating its position. The gem also handles interactions
 with any external geocoding services.
 
-Geocoding can also be performed [on the client side](#web_requests): The W3C
+Geocoding can also be performed [on the client side](#web-requests): The W3C
 geolocation API is supported by most browsers, and organizations like Google
 and Yandex maintain JavaScript APIs for their mapping services.

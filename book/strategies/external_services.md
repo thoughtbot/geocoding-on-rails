@@ -35,7 +35,7 @@ Geocoder.coordinates('washington dc')
 
 The request results will have varying levels of accuracy depending on the
 external service. This is significantly better than relying on [local
-data](#local_data) because of the external service's ability to infer information
+data](#local-data) because of the external service's ability to infer information
 from the string. However, geocoding with an external service is slower than
 geocoding locally - a single request will oftentimes take anywhere from 50ms
 to 150ms.

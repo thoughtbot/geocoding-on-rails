@@ -20,14 +20,16 @@ applications. It is divided into five sections:
 
 1. **[Strategies](#strategies)** for selecting an external geocoding service
 2. **[Tools](#tools)** you should consider using
-3. **[Application Development](#application_development):** How to organize your code as you're developing
+3. **[Application Development](#application-development):** How to organize your code as you're developing
   features
-4. **[Improving Application Performance](#improving_application_performance)** with caching and other techniques
+4. **[Improving Application Performance](#improving-application-performance)** with caching and other techniques
 5. **[Testing](#testing)** techniques for your server-and client-side code
 
 **Example Application**
 
 The code samples in this book come from commits in the [bundled example
-application](#). The example application is a Rails app which lets users search
-for Starbucks locations nearby. Take a look at the [README](#) for instructions
-on setting it up.
+application](https://github.com/thoughtbot/geocoding_on_rails/tree/master/example_app).
+The example application is a Rails app which lets users search
+for Starbucks locations nearby. Take a look at the
+[README](https://github.com/thoughtbot/geocoding_on_rails/blob/master/example_app/README.md)
+for instructions on setting it up.
