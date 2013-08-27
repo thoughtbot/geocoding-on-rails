@@ -29,7 +29,15 @@ application layout body:
 And now we get to the fun part: Creating a `Mapper` to handle drawing and updating
 the map.
 
-` app/assets/javascripts/mapper.coffee@01d053a
+` app/assets/javascripts/mapper.coffee@9b506ee
+
+We also create a `MapBounds` class:
+
+` app/assets/javascripts/map_bounds.coffee@9b506ee
+
+... and a `Map` class:
+
+` app/assets/javascripts/map.coffee@9b506ee
 
 Finally, in the view we add a function which instantiates a `Mapper` and calls
 `addCoordinates()` and `render()` to display a map and plot each location on
