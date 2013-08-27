@@ -34,14 +34,14 @@ describe Location, '#valid?' do
   it 'does not geocode when initialized with coordinates' do
     Location.geocoding_service = double('geocoding service', coordinates: nil)
 
-    location = build(:location, :in_boston, latitude: 12, longitude: 34)
+    location = build(:location, :in_boston_with_coordinates)
     location.valid?
 
     expect(Location.geocoding_service).not_to have_received(:coordinates)
   end
 
   it 'does not geocode when address does not change' do
-    location = create(:location, :in_boston)
+    location = create(:location, :in_boston_with_coordinates)
     Location.geocoding_service = double('geocoding service', coordinates: nil)
 
     location.valid?
