@@ -1,4 +1,4 @@
-## Searching with IP-Based Geocoding
+## Geocode Browser Requests on the Server Side
 
 Once data in the application is searchable based on values other than postal
 codes, there are a number of usability improvements which can be made; one is

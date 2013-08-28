@@ -1,4 +1,4 @@
-## Searching with Client-Side Geocoding
+## Geocode Browser Requests on the Client Side
 
 In the previous section we referred to the Rails `request` object to reverse
 geocode the user's location and prepopulate the search field with the user's
