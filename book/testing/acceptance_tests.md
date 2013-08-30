@@ -1,4 +1,4 @@
-### Acceptance Tests
+## Acceptance Tests
 
 The acceptance tests of our app focus on validating core features such as
 displaying location results and a functioning geospatial search. The entirety
