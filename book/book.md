@@ -55,3 +55,5 @@
 <<[testing/introduction.md]
 
 <<[testing/acceptance_tests.md]
+
+<<[testing/coffeescript_unit_tests.md]
