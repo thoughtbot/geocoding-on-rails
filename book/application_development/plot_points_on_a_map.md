@@ -4,11 +4,10 @@ At this point, all the data has been geocoded; the next step is to display this
 information by rendering each location on a map. This allows users to understand
 spatial relationships between the data points.
 
-We'll be using the [Google Maps JavaScript
-API](https://developers.google.com/maps/documentation/javascript/)
-to display a map and plot a marker for each location. Because requests to the
-Google Maps API are made on the client side, there are no changes to the
-controller or model.
+We'll be using the [Google Maps JavaScript API][google-maps-api] to display a
+map and plot a marker for each location. Because requests to the Google Maps
+API are made on the client side, there are no changes to the controller or
+model.
 
 ### Changes to the View
 

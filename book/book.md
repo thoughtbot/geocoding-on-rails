@@ -59,3 +59,33 @@
 <<[testing/unit_tests.md]
 
 <<[testing/coffeescript_unit_tests.md]
+
+[geocoding-on-rails-example-app-github]: https://github.com/thoughtbot/geocoding_on_rails/tree/master/example_app
+[geocoding-on-rails-example-app-readme]: https://github.com/thoughtbot/geocoding_on_rails/blob/master/example_app/README.md
+
+[geocoder-github]: https://github.com/alexreisner/geocoder
+[geocoder-geocode-by-ip]: https://github.com/alexreisner/geocoder#request-geocoding-by-ip-address
+[geokit]: https://github.com/imajes/geokit
+[graticule]: https://github.com/collectiveidea/graticule
+[acts-as-geocodable]: https://github.com/collectiveidea/acts_as_geocodable
+[area]: https://github.com/jgv/area
+[geoip]: https://github.com/cjheath/geoip
+[maxmind-free-geoip-database]: http://dev.maxmind.com/geoip/legacy/geolite
+[maxmind-geoip-subscription-service]: http://www.maxmind.com/en/geolocation_landing
+
+[google-geocoding-api]: https://developers.google.com/maps/documentation/geocoding/
+[google-geocoding-rate-limiting]: https://developers.google.com/maps/articles/geocodestrat#client
+[google-maps-api]: https://developers.google.com/maps/documentation/javascript/
+[google-maps-for-business]: https://developers.google.com/maps/documentation/business/
+[yandex-geocoding-api]: http://api.yandex.com/maps/
+[yahoo-boss]: http://developer.yahoo.com/boss/geo/
+[geocoder-ca]: http://geocoder.ca/?services=1
+
+[w3c-geolocation-api]: http://dev.w3.org/geo/api/spec-source.html
+[browser-geolocation-example]: http://diveintohtml5.info/geolocation.html#the-code
+
+[postgis]: http://postgis.net
+[activerecord-postgis-adapter]: https://github.com/dazuma/activerecord-postgis-adapter
+[rgeo]: https://github.com/dazuma/rgeo
+[postgis-in-action-book]: http://www.manning.com/obe/
+[haversine-formula]: http://en.wikipedia.org/wiki/Haversine_formula
