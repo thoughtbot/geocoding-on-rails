@@ -3,9 +3,8 @@
 In the previous section we referred to the Rails `request` object to reverse
 geocode the user's location and prepopulate the search field with the user's
 city and state. As an alternative to the server-side approach, we can reverse
-geocode the user's location using the [W3C geolocation](http://dev.w3.org/geo/api/spec-source.html)
-and [Google
-Geocoding](https://developers.google.com/maps/documentation/geocoding/) APIs.
+geocode the user's location using the [W3C Geolocation][w3c-geolocation-api]
+and [Google Geocoding][google-geocoding-api] APIs.
 
 ### Changes to the View
 

@@ -8,9 +8,9 @@ information from the browser request.
 
 ### Calculating Coordinates
 
-[Geocoder](https://github.com/alexreisner/geocoder#request-geocoding-by-ip-address)
-provides a `#location` method on the `request` object which returns a location
-result with latitude and longitude.
+The Geocoder gem [provides a `#location` method on the `request`
+object][geocoder-geocode-by-ip] which returns a location result with latitude
+and longitude.
 
 ```ruby
 > request.location
@@ -31,8 +31,8 @@ result with latitude and longitude.
      }>
 ```
 
-On the client side, the [W3C Geolocation API](http://dev.w3.org/geo/api/spec-source.html)
-provides location data accessible [with JavaScript](http://diveintohtml5.info/geolocation.html#the-code):
+On the client side, the [W3C Geolocation API][w3c-geolocation-api] provides
+location data accessible [with JavaScript][browser-geolocation-example]:
 
 ```javascript
 navigator.geolocation.getCurrentPosition(successCallback, failureCallback);

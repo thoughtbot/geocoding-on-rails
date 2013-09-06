@@ -5,9 +5,10 @@ local resource which maps address information to geographic coordinates.
 
 ### Calculating Coordinates
 
-The [Area](#area) gem relies on public domain records and does not make external
-requests to geocode addresses. The gem provides a simple interface for converting
-zip codes to coordinates by adding the method `#to_latlon` to `String`:
+The Area gem relies on public domain records and does not make external
+requests to geocode addresses. The gem provides a simple interface for
+converting zip codes to coordinates by adding the method `#to_latlon` to
+`String`:
 
 ```ruby
 '02101'.to_latlng # "42.370567, -71.026964"

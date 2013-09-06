@@ -28,8 +28,7 @@ applications. It is divided into five sections:
 **Example Application**
 
 The code samples in this book come from commits in the [bundled example
-application](https://github.com/thoughtbot/geocoding_on_rails/tree/master/example_app).
-The example application is a Rails app which lets users search
-for Starbucks locations nearby. Take a look at the
-[README](https://github.com/thoughtbot/geocoding_on_rails/blob/master/example_app/README.md)
-for instructions on setting it up.
+application][geocoding-on-rails-example-app-github].  The example application
+is a Rails app which lets users search for Starbucks locations nearby. Take a
+look at the [README][geocoding-on-rails-example-app-readme] for instructions
+on setting it up.
