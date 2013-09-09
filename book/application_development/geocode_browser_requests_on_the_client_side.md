@@ -15,12 +15,13 @@ current city and state:
 
 ` app/views/locations/index.html.erb@e9f6739:33,40
 
-Next, we build out our `CurrentLocation` class. When a new `CurrentLocation` is
-instantiated a call is made to the W3C browser API. The API function
-`navigator.geolocation.getCurrentPosition()` requires a success callback
-and a failure callback; in this implementation the success callback is a
-function which reverse geocodes the geographic coordinates returned. If either
-of the two external requests are unsuccessful, the `getLocation()` callback is
+Next, we build out our `CurrentLocation` class. When a new `CurrentLocation`
+is instantiated a call is made to the [W3C Geolocation
+API][w3c-geolocation-api]. The API function
+`navigator.geolocation.getCurrentPosition()` requires a success callback and a
+failure callback; in this implementation, the success callback is a function
+which reverse geocodes the geographic coordinates returned. If either of the
+two external requests is unsuccessful, the `getLocation()` callback is
 executed using `CurrentLocation.DEFAULT_LOCATION`:
 
 ` app/assets/javascripts/current_location.coffee@e9f6739
