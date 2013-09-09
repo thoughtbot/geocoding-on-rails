@@ -48,6 +48,11 @@ a location. For example:
 
 ` spec/support/geocoder.rb@37d0005:8,12
 
+Similarly, it's possible to stub geocoding based on IP addresses:
+
+` spec/support/geocoder.rb@37d0005:1
+` spec/support/geocoder.rb@37d0005:28,32
+
 ### Testing `GeocoderCache`
 
 Testing `GeocoderCache` requires we stub `Rails.cache` to return a cache object:
