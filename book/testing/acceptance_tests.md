@@ -6,7 +6,7 @@ of browser interaction is handled through a page object, `LocationsOnPage`,
 which exposes methods for interacting with the application and asserting
 against information rendered.
 
-` spec/support/features/locations_on_page.rb@f84a1bd
+` spec/support/features/locations_on_page.rb@a0c7fab
 
 Let's look at the very first acceptance test, which merely verifies locations
 are rendered correctly when no search is applied.

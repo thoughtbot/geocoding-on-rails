@@ -44,4 +44,4 @@ page load. We also add a `map` element to the DOM:
 
 ` app/views/locations/index.html.erb@59c2f5d:7,33
 
-` app/views/locations/_location.html.erb@59c2f5d
+` app/views/locations/_location.html.erb@a0c7fab

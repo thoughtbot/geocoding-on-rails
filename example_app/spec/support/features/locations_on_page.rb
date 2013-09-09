@@ -1,4 +1,6 @@
 class LocationsOnPage
+  ELEMENT_ID_REGEX = /_(\d+)/
+
   include Capybara::DSL
   include Rails.application.routes.url_helpers
 
@@ -34,6 +36,6 @@ class LocationsOnPage
   end
 
   def location_ids
-    location_elements.map { |node| node['data-id'].to_i }
+    location_elements.map { |node| node['id'][ELEMENT_ID_REGEX, 1] }
   end
 end
