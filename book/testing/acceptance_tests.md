@@ -15,7 +15,7 @@ are rendered correctly when no search is applied.
 
 In this spec, we create two records and ensure both are displayed. This test
 doesn't actually verify any geocoding is taking place and likely falls under the
-category of a smoke test.
+category of a [smoke test][smoke-test].
 
 Next, let's look at the test which ensures searching works correctly:
 

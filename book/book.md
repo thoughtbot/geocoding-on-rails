@@ -89,3 +89,5 @@
 [rgeo]: https://github.com/dazuma/rgeo
 [postgis-in-action-book]: http://www.manning.com/obe/
 [haversine-formula]: http://en.wikipedia.org/wiki/Haversine_formula
+
+[smoke-test]: http://xunitpatterns.com/Smoke%20Test.html
