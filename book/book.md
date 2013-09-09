@@ -91,6 +91,8 @@
 [haversine-formula]: http://en.wikipedia.org/wiki/Haversine_formula
 
 [smoke-test]: http://xunitpatterns.com/Smoke%20Test.html
+[sut]: http://xunitpatterns.com/SUT.html
+[mystery-guest]: http://xunitpatterns.com/Obscure%20Test.html#Mystery%20Guest
 [konacha]: https://github.com/jfirebaugh/konacha
 [poltergeist]: https://github.com/jonleighton/poltergeist
 [mocha]: http://visionmedia.github.io/mocha/

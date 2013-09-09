@@ -64,7 +64,7 @@ Writing tests to ensure our objects are only geocoded when the address is
 updated demonstrates to us we need to do some refactoring. In our unit test
 for `Location`, we want to be able to spy on the object receiving the method
 handling geocoding. Currently, the object which receives `geocode` -- the
-`Location` instance -- is the system under test:
+`Location` instance -- is the [system under test][sut]:
 
 ` app/models/location.rb@50bf859:1,5
 
@@ -101,7 +101,7 @@ inject a `FakeGeocoder` for every test performing geocoding. There are many
 benefits to this approach:
 
 1. It allows us to remove `spec/support/geocoder.rb`: All Geocoder `add_stub`s
-   effectively introduce mystery guests.
+   effectively introduce [mystery guests][mystery-guest].
 2. It allows us to be explicit about how each geocoding request works per
    test: We can now choose exactly how the geocoder used by our code responds.
 3. It provides a clear seam because we never refer to `Geocoder` explicitly:
@@ -132,6 +132,10 @@ class level), we'll need to clear out the dictionary before each test:
 Finally, we make `GeocodingRequestStub` available to the entire test suite:
 
 ` spec/spec_helper.rb@cda4d0e:11,17
+
+Notice that `GeocodingRequestStub` takes the place of the `GeocoderStub`
+module discussed in the [Geocoding with an External
+Service](#geocoding-with-an-external-service) section.
 
 We test-drive development of `FakeGeocoder`, ensuring it allows for assignment
 (`FakeGeocoder.[]=(key, value)`) and retrieval exactly as we're using it
