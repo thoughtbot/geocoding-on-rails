@@ -39,7 +39,7 @@ Third, we add a stub to a `geocoder.rb` support file.
 
 ` spec/support/geocoder.rb@50bf859:1,6
 
-Finally, we include `GeocoderStub` and `Geocoder` in our spec helper:
+Finally, we include `GeocoderStub` in our spec helper:
 
 ` spec/spec_helper.rb@37d0005:11,17
 
