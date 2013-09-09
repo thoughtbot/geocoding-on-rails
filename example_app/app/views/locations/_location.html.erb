@@ -1,4 +1,5 @@
-<li class="location" data-id="<%= location.id %>" data-latitude="<%= location.latitude %>" data-longitude="<%= location.longitude %>">
+<%= content_tag_for :li, location,
+  data: { latitude: location.latitude, longitude: location.longitude } do %>
   <header>
     <h1 data-role="name"><%= location.name %></h1>
     <% if location.respond_to?(:distance) %>
@@ -8,7 +9,9 @@
   <section>
     <section class="location-info">
       <p data-role="address"><%= location.address %></p><br>
-      <p data-role="phone-number"><%= link_to location.phone_number, "tel:#{location.phone_number}" %></p>
+      <p data-role="phone-number">
+        <%= link_to location.phone_number, "tel:#{location.phone_number}" %>
+      </p>
     </section>
   </section>
-</li>
+<% end %>
