@@ -66,9 +66,3 @@ geocoding is unsuccessful:
 ` spec/javascripts/reverse_geocoder_spec.js.coffee@e9f6739:12,18
 
 ` spec/javascripts/spec_helper.js.coffee@e9f6739:25,33
-
-[konacha]: https://github.com/jfirebaugh/konacha
-[poltergeist]: https://github.com/jonleighton/poltergeist
-[mocha]: http://visionmedia.github.io/mocha/
-[chai]: http://chaijs.com/
-[jquery-deferred]: http://api.jquery.com/jQuery.Deferred/

@@ -91,3 +91,8 @@
 [haversine-formula]: http://en.wikipedia.org/wiki/Haversine_formula
 
 [smoke-test]: http://xunitpatterns.com/Smoke%20Test.html
+[konacha]: https://github.com/jfirebaugh/konacha
+[poltergeist]: https://github.com/jonleighton/poltergeist
+[mocha]: http://visionmedia.github.io/mocha/
+[chai]: http://chaijs.com/
+[jquery-deferred]: http://api.jquery.com/jQuery.Deferred/
