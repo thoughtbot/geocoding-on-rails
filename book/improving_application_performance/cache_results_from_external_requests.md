@@ -5,9 +5,10 @@ services by URL. When your application attempts to geocode a location which has
 already been geocoded, the gem will return the cached response for the request
 URL.
 
-Start by defining a class to encapsulate the cache. In this example we're using
-Memcache, but Redis is also supported. Geocoder requires the cache object
-implement the following four methods:
+Start by defining a class to encapsulate the cache. In this example, we're
+using Memcache (because it works immediately with `Rails.cache`), but Redis is
+also supported. Geocoder requires the cache object implement the following
+four methods:
 
 1. `CacheClassName#[](key)`
 2. `CacheClassName#[]=(key, value)`

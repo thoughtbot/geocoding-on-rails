@@ -3,7 +3,7 @@
 ### What is PostGIS?
 
 [PostGIS][postgis] is a powerful spatial database extender for PostgreSQL.
-Like PostgreSQL, it is free and open source. Adding PostGIS to your database
+Like PostgreSQL, it is free and open-source. Adding PostGIS to your database
 enables persistence of geographic data and makes it possible to retrieve the
 data with spatial queries using PostGIS functions. While an exhaustive
 discussion of PostGIS is outside the scope of this book, its utility as a tool
