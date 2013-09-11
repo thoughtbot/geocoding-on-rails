@@ -16,7 +16,25 @@ integers, strings without padding, and strings longer than five characters.
 
 Next up is ensuring `PostalCode#coordinates` works as expected:
 
-` spec/models/postal_code_spec.rb@0ce0bfa:33,45
+```ruby
+# spec/models/postal_code_spec.rb
+describe PostalCode, '#coordinates' do
+  it 'uses the geocoding value to calculate' do
+    expect(PostalCode.new('02115').coordinates).to eq [
+      '02115'.to_lat.to_f,
+      '02115'.to_lon.to_f
+    ]
+  end
+
+  it 'handles postal codes which cannot be converted to coordinates' do
+    expect(PostalCode.new('12000').coordinates).to eq []
+  end
+
+  it 'handles nil' do
+    expect(PostalCode.new(nil).coordinates).to eq []
+  end
+end
+```
 
 ` app/models/postal_code.rb@0ce0bfa:12,18
 
