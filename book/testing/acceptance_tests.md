@@ -27,15 +27,10 @@ geocoding them correctly, and filter locations given a search term.
 
 Finally, we verify we're suggesting the correct location (with the placeholder
 attribute on our `<input type="text">`) based on IP retrieval. Within
-`LocationsController`, we expose a `class_attribute
-:request_geocoding_gatherer` which allows us to inject a dependency within our
-test suite.
-
-` app/controllers/locations_controller.rb@f84a1bd
-
-In the test, we build a fake object mimicking the behavior of
-`RequestGeocodingGatherer` which returns a known value to assert against
-(`'New York, NY'`).
+`LocationsController`, we already exposed a `class_attribute
+:request_geocoding_gatherer`, allowing us to swap out the
+`RequestGeocodingGatherer` with a fake object returning a known value (`'New
+York, NY'`).
 
 ` spec/features/guest_receives_suggestion_for_search_value_spec.rb@f84a1bd
 
