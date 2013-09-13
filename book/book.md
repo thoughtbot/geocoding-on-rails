@@ -18,12 +18,6 @@
 
 <<[strategies/web_requests.md]
 
-\part{Tools}
-
-<<[tools/selection.md]
-
-<<[tools/gems.md]
-
 \part{Application Development}
 
 <<[application_development/introduction.md]
@@ -59,6 +53,10 @@
 <<[testing/unit_tests.md]
 
 <<[testing/coffeescript_unit_tests.md]
+
+\part{Appendices}
+
+<<[appendices/gems.md]
 
 [geocoding-on-rails-example-app-github]: https://github.com/thoughtbot/geocoding_on_rails/tree/master/example_app
 [geocoding-on-rails-example-app-readme]: https://github.com/thoughtbot/geocoding_on_rails/blob/master/example_app/README.md
