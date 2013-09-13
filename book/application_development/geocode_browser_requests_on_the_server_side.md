@@ -24,3 +24,6 @@ reponds to one method, `#current_location`.
 In the view, we set the search field's placeholder to `@current_location_by_ip`:
 
 ` app/views/locations/index.html.erb@37d0005:1,5
+
+### Testing
+* [Geocoding with an External Service](#geocoding-with-an-external-service)

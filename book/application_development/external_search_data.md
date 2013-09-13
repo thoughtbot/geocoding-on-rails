@@ -29,3 +29,6 @@ coordinates.  While naive, this approach works well and is often more accurate
 than geocoding by postal code.
 
 ` app/models/location.rb@50bf859:3,12
+
+### Testing
+* [Geocoding with an External Service](#geocoding-with-an-external-service)

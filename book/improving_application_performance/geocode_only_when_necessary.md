@@ -16,3 +16,7 @@ Second, we build out the `#geocoding_necessary?` method to ensure the location i
 is geocoded only if its address attributes have changed:
 
 ` app/models/location.rb@cda4d0e
+
+### Testing
+* [Testing Objects are Geocoded Only When
+  Necessary](#testing-objects-are-geocoded-only-when-necessary)

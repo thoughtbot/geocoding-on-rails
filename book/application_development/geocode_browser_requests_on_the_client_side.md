@@ -30,3 +30,6 @@ The last step is to create the `ReverseGeocoder` to handle interactions with
 the external geocoding service:
 
 ` app/assets/javascripts/reverse_geocoder.coffee@e9f6739
+
+### Testing
+* [CoffeeScript Unit Tests](#coffeescript-unit-tests)

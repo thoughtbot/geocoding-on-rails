@@ -50,3 +50,6 @@ Because geocoding is being handled by the `PostalCode` class and not the
 Geocoder gem, the attribute `:country_code` is perfectly acceptable for the
 current use case. When hitting an external service like Google, however, we'll
 need to change this attribute to something more substantial.
+
+### Testing
+* [Unit Tests](#unit-tests)
