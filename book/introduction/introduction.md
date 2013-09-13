@@ -23,7 +23,7 @@ applications. It is divided into five sections:
 3. **[Application Development](#application-development):** How to organize your code as you're developing
   features
 4. **[Improving Application Performance](#improving-application-performance)** with caching and other techniques
-5. **[Testing](#testing)** techniques for your server and client-side code
+5. **[Testing](#testing)** techniques for your server- and client-side code
 
 **Example Application**
 
