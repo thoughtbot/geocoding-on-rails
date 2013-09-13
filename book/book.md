@@ -78,6 +78,8 @@
 [yandex-geocoding-api]: http://api.yandex.com/maps/
 [yahoo-boss]: http://developer.yahoo.com/boss/geo/
 [geocoder-ca]: http://geocoder.ca/?services=1
+[nominatim]: http://wiki.openstreetmap.org/wiki/Nominatim
+[data-science-toolkit]: http://www.datasciencetoolkit.org/
 
 [w3c-geolocation-api]: http://dev.w3.org/geo/api/spec-source.html
 [browser-geolocation-example]: http://diveintohtml5.info/geolocation.html#the-code
