@@ -33,3 +33,6 @@ application correctly in your test environment:
 This disallows cached values within your test environment, meaning you can be
 confident any tests you write don't rely on state inadvertently from other
 tests.
+
+### Testing
+* [Testing `GeocoderCache`](#testing-geocodercache)
