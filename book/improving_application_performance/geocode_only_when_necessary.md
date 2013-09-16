@@ -7,13 +7,11 @@ we're slowing down our application with unnecessary external requests: Geocoding
 with Google takes an average of 75ms. An easy way to improve improve application
 performance is to geocode only when the address changes.
 
-First, we add a condition to the `after_validation` callback on the `Location`
-model:
+### Changes to the Model
 
-` app/models/location.rb@cda4d0e:1,11
-
-Second, we build out the `#geocoding_necessary?` method to ensure the location instance
-is geocoded only if its address attributes have changed:
+To ensure we only geocode when the record changes, we build out
+`#geocoding_necessary?` and define the appropriate behavior where
+`set_coordinates` only runs when `#geocoding_necessary?` returns `true`:
 
 ` app/models/location.rb@cda4d0e
 

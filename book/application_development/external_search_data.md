@@ -28,7 +28,7 @@ Geocoder makes a request to an external service, updating the model's
 coordinates.  While naive, this approach works well and is often more accurate
 than geocoding by postal code.
 
-` app/models/location.rb@50bf859:3,12
+` app/models/location.rb@50bf859
 
 ### Testing
 * [Geocoding with an External Service](#geocoding-with-an-external-service)
