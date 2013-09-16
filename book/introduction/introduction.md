@@ -16,14 +16,14 @@ the feature has been built, *Is it fast enough?*
 
 Geocoding on Rails is a resource for developers seeking an object-oriented,
 test-driven approach to working with geocoded data within Rails
-applications. It is divided into five sections:
+applications. It is divided into four sections:
 
 1. **[Strategies](#strategies)** for selecting an external geocoding service
-2. **[Tools](#tools)** you should consider using
-3. **[Application Development](#application-development):** How to organize your code as you're developing
-  features
-4. **[Improving Application Performance](#improving-application-performance)** with caching and other techniques
-5. **[Testing](#testing)** techniques for your server- and client-side code
+1. **[Application Development](#application-development):** How to organize
+   your code as you're developing features
+1. **[Improving Application Performance](#improving-application-performance)**
+   with caching and other techniques
+1. **[Testing](#testing)** techniques for your server- and client-side code
 
 **Example Application**
 
