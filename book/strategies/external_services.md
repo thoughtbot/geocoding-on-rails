@@ -17,6 +17,11 @@ rate limit of 100,000 requests per day. Other good options for paid services
 are [Yahoo BOSS][yahoo-boss] and [Geocoder.ca][geocoder-ca] (US and Canada
 only).
 
+While the free Google and Yandex services are robust and well-documented,
+open-source services are also worth considering. Using [Nominatim][nominatim]
+or [Data Science Toolkit][data-science-toolkit] ensures your application will
+not be dependent on Google or Yandex's terms of service.
+
 ### Calculating Coordinates
 
 Gems like [Geocoder](#geocoder) provide a simple interface for querying an
