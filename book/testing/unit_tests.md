@@ -141,24 +141,18 @@ Next, we define `GeocodingRequestStub` (the module which contains the new
 
 ` spec/support/geocoding_request_stub.rb@cda4d0e:1,8
 
+```ruby
+# spec/spec_helper.rb
+RSpec.configure do |config|
+  config.include GeocodingRequestStub
+end
+```
+
 `stub_geocoding_request` allows for mapping any number of strings (values to
 be geocoded) to a specific coordinate. Iterating over the list of `strings`,
-we use each string as a key within our new `FakeGeocoder`.  `FakeGeocoder`
-acts as a dictionary object, mapping keys (strings to geocode) to values (a
+we use each string as a key within our new `FakeGeocoder`. `FakeGeocoder` acts
+as a dictionary object, mapping keys (strings to geocode) to values (a
 specific coordinate).
-
-Because `FakeGeocoder` is not instantiated (the dictionary is stored at a
-class level), we'll need to clear out the dictionary before each test:
-
-` spec/support/geocoding_request_stub.rb@cda4d0e:10,14
-
-Finally, we make `GeocodingRequestStub` available to the entire test suite:
-
-` spec/spec_helper.rb@cda4d0e:11,17
-
-Notice that `GeocodingRequestStub` takes the place of the `GeocoderStub`
-module discussed in the [Geocoding with an External
-Service](#geocoding-with-an-external-service) section.
 
 We test-drive development of `FakeGeocoder`, ensuring it allows for assignment
 (`FakeGeocoder.[]=(key, value)`) and retrieval exactly as we're using it
@@ -169,18 +163,16 @@ exception.
 ` spec/lib/fake_geocoder_spec.rb@cda4d0e
 
 The implementation of `FakeGeocoder` is straightforward; the only method we
-don't test directly is `FakeGeocoder.clear`, which is run before each test as
-demonstrated above.
+don't test directly is `FakeGeocoder.clear`, which needs to be run before each
+test because the data is stored at a class level.
 
 ` lib/fake_geocoder.rb@cda4d0e
 
-We refactor our other tests to use `FakeGeocoder` where appropriate:
+` spec/support/geocoding_request_stub.rb@cda4d0e:10,14
 
-` spec/features/guest_views_all_locations_spec.rb@cda4d0e
-
-Finally, we make one additional change to `Location`: We define our own
-method, `search_near`, which uses the `geocoding_service` to calculate
-coordinates and pass them to the `near` method defined by the Geocoder gem.
+We make one additional change to `Location`: We define our own method,
+`search_near`, which uses the `geocoding_service` to calculate coordinates and
+pass them to the `near` method defined by the Geocoder gem.
 
 ` app/models/location.rb@cda4d0e:13,16
 
