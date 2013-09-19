@@ -9,17 +9,17 @@ user.
 
 The Geocoder gem extends the `request` object within Rails controllers with a
 new method, `#location`, which exposes information about both city and state.
-Taking the ability to test this functionality into account, we can specify a
-`class_attribute :request_geocoding_gatherer` and assign it to a new object to
-retrieve a location string from the `request`.
-
-` app/controllers/locations_controller.rb@37d0005
-
-We default the `request_geocoding_gatherer` to a new class,
-`RequestGeocodingGatherer`, which gets instantiated with the `request` and
-reponds to one method, `#current_location`.
+By creating a new class, `RequestGeocodingGatherer`, to handle calculating
+city and state, we're able to keep this logic out of the controller and have
+small classes, each with their own responsibility.
 
 ` app/models/request_geocoding_gatherer.rb@37d0005
+
+Within the controller, we specify a `class_attribute
+:request_geocoding_gatherer` and assign it to our new class to retrieve the
+current location string from the `request`.
+
+` app/controllers/locations_controller.rb@37d0005
 
 In the view, we set the search field's placeholder to `@current_location_by_ip`:
 
