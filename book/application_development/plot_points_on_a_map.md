@@ -25,16 +25,19 @@ application layout body:
 
 ` app/views/layouts/application.html.erb@01d053a:10,16
 
-And now we get to the fun part: Creating a `Mapper` to handle drawing and updating
-the map.
+With our initial set-up complete, we now create some CoffeeScript classes to
+handle interactions with the maps API. We begin by creating a `Mapper` to
+display the map on the page with markers placed at the correct coordinates.
 
 ` app/assets/javascripts/mapper.coffee@5bb8973
 
-We also create a `MapBounds` class:
+Next we create a `MapBounds` class which provides a simple interface for
+interacting with Google's representation of coordinates and bounds.
 
 ` app/assets/javascripts/map_bounds.coffee@5bb8973
 
-... and a `Map` class:
+We also create a `Map` class to provide a simple interface to the Google Maps
+JavaScript API for rendering a responsive map.
 
 ` app/assets/javascripts/map.coffee@5bb8973
 
