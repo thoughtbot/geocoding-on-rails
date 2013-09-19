@@ -36,20 +36,18 @@ the model is updated and recognize itself as a geocodable model.
 To update coordinates, adding an `after_validation` callback to geocode the
 model is most straightforward.
 
-` app/models/location.rb@0ce0bfa:5,11
+` app/models/location.rb@0ce0bfa
 
 This callback relies on `PostalCode`, taking advantage of the Area gem to
 convert `#postal_code` to useable coordinates.
 
 To add the `.near` class method for searching based on location, the model
-needs to declare the attribute (or method) by which it can be geocoded:
-
-` app/models/location.rb@0ce0bfa:3
-
-Because geocoding is being handled by the `PostalCode` class and not the
-Geocoder gem, the attribute `:country_code` is perfectly acceptable for the
-current use case. When hitting an external service like Google, however, we'll
-need to change this attribute to something more substantial.
+needs to declare the attribute or method (passed as a symbol to `geocoded_by`)
+by which it can be geocoded.  Because geocoding is being handled by the
+`PostalCode` class and not the Geocoder gem, the attribute `:country_code` is
+perfectly acceptable for the current use case. When hitting an external
+service like Google, however, we'll need to change this attribute to something
+more specific, such as street address.
 
 ### Testing
 * [Unit Tests](#unit-tests)
