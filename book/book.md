@@ -76,6 +76,7 @@
 [graticule]: https://github.com/collectiveidea/graticule
 [acts-as-geocodable]: https://github.com/collectiveidea/acts_as_geocodable
 [area]: https://github.com/jgv/area
+[webmock]: https://github.com/bblimke/webmock
 [geoip]: https://github.com/cjheath/geoip
 [maxmind-free-geoip-database]: http://dev.maxmind.com/geoip/legacy/geolite
 [maxmind-geoip-subscription-service]: http://www.maxmind.com/en/geolocation_landing

@@ -188,3 +188,18 @@ This decoupling from the Geocoder gem is large; instead of relying on the
 Geocoder gem throughout the application and its stubs in the test suite, we
 instead rely on a simple interface, `coordinates(value)` and `[]=(key,
 value)`, to handle the entirety of our geocoding needs.
+
+### Ensuring No External Requests are Made during Geocoding
+
+With geocoding completely handled by `FakeGeocoder`, we can add the [WebMock
+gem][webmock] to verify the application is making no external requests.
+
+First, add the gem to the `Gemfile`:
+
+` Gemfile@9c37789:23,30
+
+Next, disable all network interaction with `WebMock.disable_net_connect!`:
+
+` spec/spec_helper.rb@9c37789:1,10
+
+A green test suite verifies no external geocoding requests are made.

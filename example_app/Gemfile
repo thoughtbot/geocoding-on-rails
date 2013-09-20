@@ -26,6 +26,7 @@ group :test do
   gem 'factory_girl_rails', '~> 4.1.0'
   gem 'poltergeist', '~> 1.1'
   gem 'shoulda-matchers', '~> 2.2.0'
+  gem 'webmock', require: false
 end
 
 group :doc do
