@@ -63,6 +63,7 @@
 
 [geocoder-github]: https://github.com/alexreisner/geocoder
 [geocoder-geocode-by-ip]: https://github.com/alexreisner/geocoder#request-geocoding-by-ip-address
+[freegeoip]: http://freegeoip.net/
 [geokit]: https://github.com/imajes/geokit
 [graticule]: https://github.com/collectiveidea/graticule
 [acts-as-geocodable]: https://github.com/collectiveidea/acts_as_geocodable
