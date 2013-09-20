@@ -58,6 +58,14 @@
 
 <<[appendices/gems.md]
 
+<<[appendices/postgis.md]
+
+<<[appendices/postgis/using_postgis_in_your_rails_application.md]
+
+<<[appendices/postgis/setting_up_continuous_integration_with_postgis.md]
+
+<<[appendices/postgis/setting_up_postgis_for_heroku.md]
+
 [geocoding-on-rails-example-app-github]: https://github.com/thoughtbot/geocoding_on_rails/tree/master/example_app
 [geocoding-on-rails-example-app-readme]: https://github.com/thoughtbot/geocoding_on_rails/blob/master/example_app/README.md
 
@@ -99,3 +107,8 @@
 [mocha]: http://visionmedia.github.io/mocha/
 [chai]: http://chaijs.com/
 [jquery-deferred]: http://api.jquery.com/jQuery.Deferred/
+[postgis-install]: http://postgis.net/install
+[activerecord-postgis-adapter-issue-48]: https://github.com/dazuma/activerecord-postgis-adapter/issues/48#issuecomment-13588779
+[heroku-devcenter-postgis]: https://devcenter.heroku.com/articles/postgis
+[heroku-pricing]: https://www.heroku.com/pricing
+[heroku-upgrade-plan]: https://devcenter.heroku.com/articles/upgrade-heroku-postgres-with-pgbackups
