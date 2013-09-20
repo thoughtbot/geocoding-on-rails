@@ -107,6 +107,7 @@
 [mocha]: http://visionmedia.github.io/mocha/
 [chai]: http://chaijs.com/
 [jquery-deferred]: http://api.jquery.com/jQuery.Deferred/
+[ngrok]: https://github.com/inconshreveable/ngrok
 [postgis-install]: http://postgis.net/install
 [activerecord-postgis-adapter-issue-48]: https://github.com/dazuma/activerecord-postgis-adapter/issues/48#issuecomment-13588779
 [heroku-devcenter-postgis]: https://devcenter.heroku.com/articles/postgis
