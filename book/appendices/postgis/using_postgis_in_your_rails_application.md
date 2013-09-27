@@ -26,8 +26,8 @@ configure your Rails application.
 #### Create PostGIS extension
 
 If you haven't created your local database yet, you can simply install the
-ActiveRecord PostGIS Adapter gem and add `postgis_extension: true` to your
-`database.yml` [per the instructions
+[ActiveRecord PostGIS Adapter][activerecord-postgis-adapter] gem and add
+`postgis_extension: true` to your `database.yml` [per the instructions
 below](#add-activerecord-postgis-adapter-to-gemfile). ActiveRecord PostGIS
 Adapter will create the extension when `rake db:create` is run.
 
@@ -76,7 +76,7 @@ Also note that the test database `schema_search_path` should be set to `public`.
 This ensures that the PostGIS table `spatial_ref_sys` will be loaded when
 you prepare your test database. If `schema_search_path` is set to `public,
 postgis`, PostGIS tables [will not be made
-available][activerecord-postgis-adapter-issue-48].
+available][activerecord-postgis-adapter-issue-48]:
 
 ```yaml
 # config/database.yml
@@ -100,7 +100,7 @@ test: &test
 
 #### Update your DatabaseCleaner strategy
 Ensure that your DatabaseCleaner strategy does not remove the PostGIS
-`spatial_ref_sys` table before or between tests.
+`spatial_ref_sys` table before or between tests:
 
 ```ruby
 # spec/support/database_cleaner.rb

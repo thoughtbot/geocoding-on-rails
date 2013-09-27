@@ -3,12 +3,12 @@
 ### Calculating a User's Location by IP Address
 
 Many applications ask users to provide their current location in order to
-perform a search for addresses nearby. Often, it's possible to retrieve this
-information from the browser request.
+perform a search for addresses nearby. However, it's often possible to retrieve this
+information from the browser request itself.
 
-The Geocoder gem [provides a `#location` method on the `request`
-object][geocoder-geocode-by-ip] which returns a location result with latitude
-and longitude.
+The [geocoder][geocoder-github] gem [provides a `#location` method on the
+`request` object][geocoder-geocode-by-ip] which returns a location result with
+latitude and longitude:
 
 ```ruby
 > request.location
@@ -30,9 +30,10 @@ and longitude.
 ```
 
 Determining a user's location via IP address interacts with a different set of
-services than when [attempting to convert a physical address to a
-coordinate](#choosing-a-service); in the example above, the Geocoder gem is
-using the [freegeoip.net][freegeoip] service.
+services than [attempting to convert a physical address to a
+coordinate](#choosing-a-service); in the example above, the
+[geocoder][geocoder-github] gem is using the [freegeoip.net][freegeoip]
+service.
 
 ### Calculating a User's Location from a Web Browser
 
@@ -45,5 +46,5 @@ navigator.geolocation.getCurrentPosition(successCallback, failureCallback);
 
 The [W3C Geolocation API][w3c-geolocation-api] is agnostic in how it
 calculates location. Depending on the user's device, location may be
-determined by GPS, inferred based on network IP addresses, or triangulated
+determined by GPS, inferred based on network IP addresses or triangulated
 based on distance from cellular towers.

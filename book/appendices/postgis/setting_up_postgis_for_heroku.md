@@ -4,11 +4,11 @@ Heroku support for PostGIS is currently available [in
 beta][heroku-devcenter-postgis] for production-tier
 databases.
 
-#### Configuring Your Heroku Database
+#### Configuring your Heroku database
 
 #### Check to make sure your primary database is a production-tier database
 Heroku's least expensive production-tier option is the Crane database, [priced at
-$50/month][heroku-pricing].
+$50/month][heroku-pricing]:
 
 ```sh
 $ heroku pg:info --app <your-app>

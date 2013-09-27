@@ -25,23 +25,23 @@ application layout body:
 
 ` app/views/layouts/application.html.erb@01d053a:10,16
 
-With our initial set-up complete, we now create some CoffeeScript classes to
+With our initial setup complete, we now create some CoffeeScript classes to
 handle interactions with the maps API. We begin by creating a `Mapper` to
-display the map on the page with markers placed at the correct coordinates.
+display the map on the page with markers placed at the correct coordinates:
 
 ` app/assets/javascripts/mapper.coffee@5bb8973
 
 Next we create a `MapBounds` class which provides a simple interface for
-interacting with Google's representation of coordinates and bounds.
+interacting with Google's representation of coordinates and bounds:
 
 ` app/assets/javascripts/map_bounds.coffee@5bb8973
 
 We also create a `Map` class to provide a simple interface to the Google Maps
-JavaScript API for rendering a responsive map.
+JavaScript API for rendering a responsive map:
 
 ` app/assets/javascripts/map.coffee@5bb8973
 
-Finally, in the view we add a function which instantiates a `Mapper` and calls
+Finally, we add a function in the view which instantiates a `Mapper` and calls
 `addCoordinates()` and `render()` to display a map and plot each location on
 page load. We also add a `map` element to the DOM:
 

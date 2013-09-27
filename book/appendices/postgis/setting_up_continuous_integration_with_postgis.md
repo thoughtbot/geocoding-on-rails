@@ -6,7 +6,7 @@ your continuous integration service is configured for PostGIS.
 
 #### Configure database loading on Tddium
 Create a worker hook in `tddium.yml` to ensure that the Tddium database is
-PostGIS-enabled.
+PostGIS-enabled:
 
 ```yaml
 # config/tddium.yml
