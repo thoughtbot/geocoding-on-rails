@@ -25,8 +25,6 @@ applications. It is divided into four sections:
    with caching and other techniques
 1. **[Testing](#testing)** techniques for your server- and client-side code
 
-**Example Application**
-
 The code samples in this book come from commits in the [bundled example
 application][geocoding-on-rails-example-app-github].  The example application
 is a Rails app which lets users search for Starbucks locations nearby. Take a
