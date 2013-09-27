@@ -1,10 +1,10 @@
-## Setting Up PostGIS for Heroku
+### Setting Up PostGIS for Heroku
 
 Heroku support for PostGIS is currently available [in
 beta][heroku-devcenter-postgis] for production-tier
 databases.
 
-### Configuring Your Heroku Database
+#### Configuring Your Heroku Database
 
 #### Check to make sure your primary database is a production-tier database
 Heroku's least expensive production-tier option is the Crane database, [priced at
@@ -38,6 +38,7 @@ $ heroku pg:psql --app <your-app>
 ```
 
 #### Confirm that extension was created
+
 ```sh
 =# SELECT POSTGIS_FULL_VERSION();
     NOTICE:  Function postgis_topology_scripts_installed() not found. Is topology
@@ -54,7 +55,7 @@ $ heroku pg:psql --app <your-app>
 =# \quit
 ```
 
-### Create an initializer to set the database adapter on Heroku
+#### Create an initializer to set the database adapter on Heroku
 
 Set the Heroku database adapter and schema search path using an initializer:
 

@@ -1,9 +1,9 @@
-## Using PostGIS in Your Rails Application
+### Using PostGIS in Your Rails Application
 
 First, make sure you have PostgreSQL 9.1 or higher installed. Then install
 PostGIS 2.0:
 
-### OS X
+#### OS X
 The PostGIS website recommends using Postgres.app to install PostGIS.
 Alternatively, you can use homebrew:
 
@@ -11,7 +11,7 @@ Alternatively, you can use homebrew:
 $ brew install postgis
 ```
 
-### Arch Linux
+#### Arch Linux
 
 ```sh
 $ sudo pacman -S postgis
@@ -58,14 +58,14 @@ $ rails dbconsole
 =# \quit
 ```
 
-### Add ActiveRecord PostGIS Adapter to Gemfile
+#### Add ActiveRecord PostGIS Adapter to Gemfile
 
 ``` ruby
 # Gemfile
 gem 'activerecord-postgis-adapter'
 ```
 
-### Configure your local databases
+#### Configure your local databases
 
 Configure your test and development databases for use with the ActiveRecord
 PostGIS adapter. Be sure to set the `adapter` to `postgis` and
@@ -98,7 +98,7 @@ test: &test
   database: <database_name>
 ```
 
-### Update your DatabaseCleaner strategy
+#### Update your DatabaseCleaner strategy
 Ensure that your DatabaseCleaner strategy does not remove the PostGIS
 `spatial_ref_sys` table before or between tests.
 

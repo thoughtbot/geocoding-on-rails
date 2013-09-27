@@ -1,10 +1,10 @@
-## Setting Up Continuous Integration with PostGIS
+### Setting Up Continuous Integration with PostGIS
 
 After [installing PostGIS locally](#using-postgis-in-your-rails-application)
 and adding the PostGIS extension to your local databases, you should make sure
 your continuous integration service is configured for PostGIS.
 
-### Configure database loading on Tddium
+#### Configure database loading on Tddium
 Create a worker hook in `tddium.yml` to ensure that the Tddium database is
 PostGIS-enabled.
 
