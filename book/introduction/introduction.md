@@ -18,12 +18,11 @@ Geocoding on Rails is a resource for developers seeking an object-oriented,
 test-driven approach to working with geocoded data within Rails
 applications. It is divided into four sections:
 
-1. **[Strategies](#strategies)** for selecting an external geocoding service
-1. **[Application Development](#application-development):** How to organize
-   your code as you're developing features
-1. **[Improving Application Performance](#improving-application-performance)**
-   with caching and other techniques
-1. **[Testing](#testing)** techniques for your server- and client-side code
+1. **Strategies** for selecting an external geocoding service
+1. **Application Development:** How to organize your code as you're developing
+   features
+1. **Improving Application Performance** with caching and other techniques
+1. **Testing** techniques for your server- and client-side code
 
 The code samples in this book come from commits in the [bundled example
 application][geocoding-on-rails-example-app-github].  The example application
