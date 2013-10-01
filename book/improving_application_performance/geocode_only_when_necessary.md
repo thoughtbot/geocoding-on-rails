@@ -9,7 +9,7 @@ performance is to geocode only when the address changes.
 
 ### Changes to the Model
 
-To ensure we only geocode when the record changes, we build out
+To ensure we only geocode when the address changes, we build out
 `#geocoding_necessary?` and define the appropriate behavior where
 `set_coordinates` only runs when `#geocoding_necessary?` returns `true`:
 

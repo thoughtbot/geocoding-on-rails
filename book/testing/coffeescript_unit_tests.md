@@ -34,7 +34,7 @@ Next, we assert a default location is returned if the resolution is rejected:
 
 ` spec/javascripts/current_location_spec.coffee@e9f6739:12,18
 
-Finally, we ensure `CurrentLocation::DEFAULT_LOCATION` returns the expected
+Finally, we ensure that `CurrentLocation::DEFAULT_LOCATION` returns the expected
 value:
 
 ` spec/javascripts/current_location_spec.coffee@e9f6739:20,22
@@ -42,7 +42,7 @@ value:
 ### Testing `ExampleApp.ReverseGeocoder`
 
 To test `ReverseGeocoder#location`, we'll need to stub requests to the
-external geocoding service. First we test the success callback is executed if
+external geocoding service. First, we confirm that the success callback is executed if
 reverse geocoding is successful:
 
 ` spec/javascripts/reverse_geocoder_spec.js.coffee@e9f6739:1,10
@@ -59,7 +59,7 @@ configured correctly:
 ` spec/javascripts/reverse_geocoder_spec.js.coffee@e9f6739:20,29
 
 With the assertions complete when testing a successful resolution, we can now
-verify `ReverseGeocoder#location` executes the failure callback when reverse
+verify that `ReverseGeocoder#location` executes the failure callback when reverse
 geocoding is unsuccessful:
 
 ` spec/javascripts/reverse_geocoder_spec.js.coffee@e9f6739:12,18
@@ -71,7 +71,7 @@ geocoding is unsuccessful:
 In addition to writing unit tests for `CurrentLocation` and `ReverseGeocoder`,
 it's a good idea to confirm our application is behaving as expected by
 viewing it in the browser. We use [ngrok][ngrok] to expose our local server to
-the internet, allowing our application to access the W3C geolocation and
+the Internet, allowing our application to access the W3C geolocation and
 Google Geocoding APIs in the development environment.
 
 ### Testing the Google Map

@@ -1,9 +1,9 @@
 ## Introduction
 
-The following chapters outline recommended approaches to building features which
-rely on the presence of geocoded data. As a starting point, let's assume we
-have a few thousand records in our database, each with accurate address
-information.
+The chapters in this section outline recommended approaches to building
+features that rely on the presence of geocoded data. As a starting point,
+let's assume we have a few thousand records in our database, each with
+accurate address information.
 
 Without the ability to query our data by location, we can start by displaying
 addresses:
