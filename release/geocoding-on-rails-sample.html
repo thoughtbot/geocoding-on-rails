@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+</head>
+<body>
+<nav id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#contact-us">Contact us</a><ul>
+<li><a href="#plot-points-on-a-map">Plot Points on a Map</a><ul>
+<li><a href="#changes-to-the-view">Changes to the View</a></li>
+</ul></li>
+<li><a href="#geocode-browser-requests-on-the-server-side">Geocode Browser Requests on the Server Side</a><ul>
+<li><a href="#changes-to-the-controller-and-view">Changes to the Controller and View</a></li>
+<li><a href="#testing">Testing</a></li>
+</ul></li>
+<li><a href="#cache-results-from-external-requests">Cache Results from External Requests</a><ul>
+<li><a href="#testing-1">Testing</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#closing">Closing</a></li>
+</ul>
+</nav>
+<section class="level1" id="introduction">
+<h1><a href="#introduction">Introduction</a></h1>
+<blockquote>
+<p>&quot;The world is a beautiful book, but it's not much use if you don’t know how to read.&quot; -- Carlo Goldoni, <em>Pamela</em></p>
+</blockquote>
+<p>The human desire to acquire knowledge of the natural world has produced countless systems for aggregating, manipulating, and representing geospatial information. In recent years--now that we're all generally agreed on the shape of the Earth--it has also produced a lot of software.</p>
+<p>Working with geocoded data within the context of a web application can be tricky. While the availability of free and open-source libraries has greatly simplified the challenges of accurately geocoding data and performing meaningful analysis, there are still a plethora of decisions to be made before the first line of code is written: <em>What tools should we use? Where should the business logic live? What's the best way to write a test for this?</em> And after the feature has been built, <em>Is it fast enough?</em></p>
+<p><em>Geocoding on Rails</em> is a resource for developers seeking an object-oriented, test-driven approach to working with geocoded data within Rails applications. It is divided into four sections:</p>
+<ol type="1">
+<li><strong>Strategies</strong> for selecting an external geocoding service</li>
+<li><strong>Application Development</strong> approaches for organizing your code as you're developing features</li>
+<li><strong>Improving Application Performance</strong> with caching and other techniques</li>
+<li><strong>Testing</strong> techniques for your server- and client-side code</li>
+</ol>
+<p>The code samples in this book come from commits in the <a href="https://github.com/thoughtbot/geocoding_on_rails/tree/master/example_app">bundled example application</a>. The example application is a Rails app which lets users search for Starbucks locations nearby. Take a look at the <a href="https://github.com/thoughtbot/geocoding_on_rails/blob/master/example_app/README.md">README</a> for instructions on setting it up.</p>
+<p>This sample contains a few hand-picked sections covering various aspects of application development and performance improvements: plotting points on a map, geocoding browser requests from the server and caching results from external requests. Because these sections are pulled directly from the book, you're able to get a sense for the content, style, and delivery of the product.</p>
+<p>If you enjoy the sample, you can get access to the entire book and sample application at:</p>
+<p><a href="https://learn.thoughtbot.com/geocodingonrails">https://learn.thoughtbot.com/geocodingonrails</a></p>
+<p>As a purchaser of the book, you also get access to:</p>
+<ul>
+<li>Multiple formats, including HTML, PDF, EPUB, and Kindle.</li>
+<li>A complete example application containing code samples referenced from the book.</li>
+<li>The GitHub repository to receive updates as soon as they're pushed.</li>
+<li>GitHub issues, where you can provide feedback and tell us what you'd like to see.</li>
+</ul>
+</section>
+<section class="level1" id="contact-us">
+<h1><a href="#contact-us">Contact us</a></h1>
+<p>If you have any questions, or just want to get in touch, drop us a line at <script type="text/javascript">
+<!--
+h='&#116;&#104;&#x6f;&#x75;&#x67;&#104;&#116;&#98;&#x6f;&#116;&#46;&#x63;&#x6f;&#x6d;';a='&#64;';n='&#108;&#x65;&#x61;&#114;&#110;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>learn at thoughtbot dot com</noscript>.</p>
+<p></p>
+<p></p>
+<p></p>
+<section class="level2" id="plot-points-on-a-map">
+<h2><a href="#plot-points-on-a-map">Plot Points on a Map</a></h2>
+<p>At this point, all the data has been geocoded; the next step is to display this information by rendering each location on a map. This allows users to understand spatial relationships between the data points.</p>
+<p>We'll be using the <a href="https://developers.google.com/maps/documentation/javascript/">Google Maps JavaScript API</a> to display a map and plot a marker for each location. Because requests to the Google Maps API are made on the client side, there are no changes to the controller or model.</p>
+<section class="level3" id="changes-to-the-view">
+<h3><a href="#changes-to-the-view">Changes to the View</a></h3>
+<p>Before jumping into querying the maps API, we make some decisions about how we're going to organize our client-side scripts.</p>
+<p>First, we create a namespace for our application:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># app/assets/javascripts/base.coffee</span>
+<span class="dt">@ExampleApp</span> <span class="kw">=</span> <span class="kw">{}</span></code></pre>
+<p>Then we create a <code>javascript.html.erb</code> partial which will be rendered in the application layout body:</p>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/application/_javascript.html.erb
+<span class="kw">&lt;%=</span> javascript_include_tag <span class="st">&quot;application&quot;</span>, <span class="st">&quot;data-turbolinks-track&quot;</span> <span class="ch">=&gt;</span> <span class="dv">true</span> <span class="kw">%&gt;</span>
+<span class="kw">&lt;%=</span> <span class="kw">yield</span> <span class="st">:javascript</span> <span class="kw">%&gt;</span></code></pre>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/layouts/application.html.erb
+<span class="kw">&lt;body&gt;</span>
+  <span class="kw">&lt;div</span><span class="ot"> class=</span><span class="st">&quot;container&quot;</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;%=</span> <span class="kw">yield</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;/div&gt;</span>
+
+  <span class="kw">&lt;%=</span> render <span class="st">'javascript'</span> <span class="kw">%&gt;</span>
+<span class="kw">&lt;/body&gt;</span></code></pre>
+<p>With our initial setup complete, we now create some CoffeeScript classes to handle interactions with the maps API. We begin by creating a <code>Mapper</code> to display the map on the page with markers placed at the correct coordinates:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># app/assets/javascripts/mapper.coffee</span>
+<span class="kw">class</span> <span class="dt">@ExampleApp.Mapper</span>
+  <span class="kw">constructor:</span> <span class="fu">(cssSelector) -&gt;</span>
+    <span class="dt">@cssSelector</span> <span class="kw">=</span> cssSelector
+    <span class="dt">@map</span> <span class="kw">=</span> <span class="ot">null</span>
+    <span class="dt">@bounds</span> <span class="kw">=</span> <span class="kw">new</span> <span class="dt">ExampleApp.MapBounds</span>
+
+  addCoordinates<span class="kw">:</span> <span class="fu">(latitude, longitude) -&gt;</span>
+    <span class="kw">if</span> <span class="kw">!</span>_<span class="kw">.</span>isEmpty<span class="kw">(</span>latitude<span class="kw">)</span> <span class="kw">and</span> <span class="kw">!</span>_<span class="kw">.</span>isEmpty<span class="kw">(</span>longitude<span class="kw">)</span>
+      <span class="dt">@bounds</span><span class="kw">.</span>add<span class="kw">(</span>latitude<span class="kw">,</span> longitude<span class="kw">)</span>
+
+  render<span class="kw">:</span> <span class="fu">=&gt;</span>
+    <span class="dt">@map</span> <span class="kw">=</span> <span class="kw">new</span> <span class="dt">ExampleApp.Map</span><span class="kw">(</span><span class="dt">@cssSelector</span><span class="kw">,</span> <span class="dt">@bounds</span><span class="kw">)</span>
+    <span class="dt">@map</span><span class="kw">.</span>build<span class="kw">()</span></code></pre>
+<p>Next we create a <code>MapBounds</code> class which provides a simple interface for interacting with Google's representation of coordinates and bounds:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># app/assets/javascripts/map_bounds.coffee</span>
+<span class="kw">class</span> <span class="dt">@ExampleApp.MapBounds</span>
+  <span class="kw">constructor:</span> <span class="fu">-&gt;</span>
+    <span class="dt">@googleLatLngBounds</span> <span class="kw">=</span> <span class="kw">new</span> <span class="dt">google.maps.LatLngBounds</span><span class="kw">()</span>
+    <span class="dt">@latLngs</span> <span class="kw">=</span> <span class="kw">[]</span>
+
+  add<span class="kw">:</span> <span class="fu">(latitude, longitude) -&gt;</span>
+    latLng <span class="kw">=</span> <span class="kw">new</span> <span class="dt">google.maps.LatLng</span><span class="kw">(</span>latitude<span class="kw">,</span> longitude<span class="kw">)</span>
+    <span class="dt">@googleLatLngBounds</span><span class="kw">.</span>extend<span class="kw">(</span>latLng<span class="kw">)</span>
+    <span class="dt">@latLngs</span><span class="kw">.</span>push<span class="kw">(</span>latLng<span class="kw">)</span>
+
+  getCenter<span class="kw">:</span> <span class="fu">-&gt;</span>
+    <span class="dt">@googleLatLngBounds</span><span class="kw">.</span>getCenter<span class="kw">()</span></code></pre>
+<p>We also create a <code>Map</code> class to provide a simple interface to the Google Maps JavaScript API for rendering a responsive map:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># app/assets/javascripts/map.coffee</span>
+<span class="kw">class</span> <span class="dt">@ExampleApp.Map</span>
+  <span class="kw">constructor:</span> <span class="fu">(cssSelector, bounds) -&gt;</span>
+    <span class="dt">@googleMap</span> <span class="kw">=</span> <span class="kw">new</span> <span class="dt">google.maps.Map</span><span class="kw">(</span>$<span class="kw">(</span>cssSelector<span class="kw">)[</span><span class="dv">0</span><span class="kw">],</span> <span class="dt">@_mapOptions</span><span class="kw">())</span>
+    <span class="dt">@bounds</span> <span class="kw">=</span> bounds
+
+    $<span class="kw">(</span>window<span class="kw">).</span><span class="ot">on</span> <span class="st">'resize'</span><span class="kw">,</span> <span class="fu">=&gt;</span>
+      google<span class="kw">.</span>maps<span class="kw">.</span>event<span class="kw">.</span>trigger<span class="kw">(</span><span class="dt">@googleMap</span><span class="kw">,</span> <span class="st">'resize'</span><span class="kw">)</span>
+      <span class="dt">@_updateCenter</span><span class="kw">()</span>
+
+  build<span class="kw">:</span> <span class="fu">-&gt;</span>
+    <span class="dt">@_updateCenter</span><span class="kw">()</span>
+    <span class="dt">@_plotCoordinates</span><span class="kw">()</span>
+
+  _updateCenter<span class="kw">:</span> <span class="fu">-&gt;</span>
+    <span class="dt">@googleMap</span><span class="kw">.</span>fitBounds <span class="dt">@bounds</span><span class="kw">.</span>googleLatLngBounds
+    <span class="dt">@googleMap</span><span class="kw">.</span>setCenter <span class="dt">@bounds</span><span class="kw">.</span>getCenter<span class="kw">()</span>
+
+  _plotCoordinates<span class="kw">:</span> <span class="fu">-&gt;</span>
+    <span class="kw">for</span> latLng <span class="kw">in</span> <span class="dt">@bounds</span><span class="kw">.</span>latLngs
+      <span class="kw">new</span> <span class="dt">google.maps.Marker</span><span class="kw">(</span>position<span class="kw">:</span> latLng<span class="kw">,</span> map<span class="kw">:</span> <span class="dt">@googleMap</span><span class="kw">)</span>
+
+  _mapOptions<span class="kw">:</span> <span class="fu">-&gt;</span>
+    zoom<span class="kw">:</span> <span class="dv">13</span>
+    mapTypeId<span class="kw">:</span> google<span class="kw">.</span>maps<span class="kw">.</span>MapTypeId<span class="kw">.</span>SATELLITE</code></pre>
+<p>Finally, we add a function in the view which instantiates a <code>Mapper</code> and calls <code>addCoordinates()</code> and <code>render()</code> to display a map and plot each location on page load. We also add a <code>map</code> element to the DOM:</p>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/locations/index.html.erb
+<span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&quot;map&quot;</span><span class="ot"> style=</span><span class="st">&quot;height: 400px;&quot;</span><span class="kw">&gt;&lt;/div&gt;</span>
+
+<span class="kw">&lt;ul</span><span class="ot"> class=</span><span class="st">&quot;locations&quot;</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;%</span> <span class="ot">@locations</span>.each <span class="kw">do</span> <span class="ch">|</span>location<span class="ch">|</span> <span class="kw">%&gt;</span>
+    <span class="kw">&lt;%=</span> render location <span class="kw">%&gt;</span>
+  <span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span>
+<span class="kw">&lt;/ul&gt;</span>
+
+<span class="kw">&lt;%</span> content_for <span class="st">:javascript</span> <span class="kw">do</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;script</span><span class="ot"> type=</span><span class="st">&quot;text/javascript&quot;</span>
+<span class="ot">    src=</span><span class="st">&quot;//maps.googleapis.com/maps/api/js?sensor=false&quot;</span><span class="kw">&gt;&lt;/script&gt;</span>
+
+  <span class="kw">&lt;%=</span> javascript_tag <span class="kw">do</span> <span class="kw">%&gt;</span>
+    $(function() {
+      var mapper = new ExampleApp.Mapper('#map');
+
+      $('[data-latitude]').each(function(index, element) {
+        mapper.addCoordinates(
+          $(element).attr('data-latitude'),
+          $(element).attr('data-longitude')
+        );
+      });
+
+      mapper.render();
+    });
+  <span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span>
+<span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span></code></pre>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/locations/_location.html.erb
+<span class="kw">&lt;%=</span> content_tag_for <span class="st">:li</span>, location,
+  data: <span class="ch">{</span> latitude: location.latitude, longitude: location.longitude <span class="ch">}</span> <span class="kw">do</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;header&gt;</span>
+    <span class="kw">&lt;h1</span><span class="ot"> data-role=</span><span class="st">&quot;name&quot;</span><span class="kw">&gt;&lt;%=</span> location.name <span class="kw">%&gt;&lt;/h1&gt;</span>
+    <span class="kw">&lt;%</span> <span class="kw">if</span> location.respond_to?(<span class="st">:distance</span>) <span class="kw">%&gt;</span>
+      <span class="kw">&lt;h2</span><span class="ot"> data-role=</span><span class="st">&quot;distance&quot;</span><span class="kw">&gt;&lt;%=</span> location.distance.round(<span class="dv">1</span>) <span class="kw">%&gt;</span> mi<span class="kw">&lt;/h2&gt;</span>
+    <span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;/header&gt;</span>
+  <span class="kw">&lt;section&gt;</span>
+    <span class="kw">&lt;section</span><span class="ot"> class=</span><span class="st">&quot;location-info&quot;</span><span class="kw">&gt;</span>
+      <span class="kw">&lt;p</span><span class="ot"> data-role=</span><span class="st">&quot;address&quot;</span><span class="kw">&gt;&lt;%=</span> location.address <span class="kw">%&gt;&lt;/p&gt;&lt;br&gt;</span>
+      <span class="kw">&lt;p</span><span class="ot"> data-role=</span><span class="st">&quot;phone-number&quot;</span><span class="kw">&gt;</span>
+        <span class="kw">&lt;%=</span> link_to location.phone_number, <span class="st">&quot;tel:</span><span class="ot">#{</span>location.phone_number<span class="ot">}</span><span class="st">&quot;</span> <span class="kw">%&gt;</span>
+      <span class="kw">&lt;/p&gt;</span>
+    <span class="kw">&lt;/section&gt;</span>
+  <span class="kw">&lt;/section&gt;</span>
+<span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span></code></pre>
+</section>
+</section>
+<section class="level2" id="geocode-browser-requests-on-the-server-side">
+<h2><a href="#geocode-browser-requests-on-the-server-side">Geocode Browser Requests on the Server Side</a></h2>
+<p>Once data in the application is searchable based on values other than postal codes, there are a number of usability improvements that can be made; one is pre-populating the search field with a guess at the city and state of the user.</p>
+<section class="level3" id="changes-to-the-controller-and-view">
+<h3><a href="#changes-to-the-controller-and-view">Changes to the Controller and View</a></h3>
+<p>The <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem extends the <code>request</code> object within Rails controllers with a new method, <code>#location</code>, which exposes information about both city and state. By creating a new class, <code>RequestGeocodingGatherer</code>, to handle calculating city and state, we're able to keep this logic out of the controller and have small classes, each with their own responsibility:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/request_geocoding_gatherer.rb</span>
+<span class="kw">class</span> <span class="dt">RequestGeocodingGatherer</span>
+  <span class="kw">def</span> initialize(request)
+    <span class="ot">@request</span> = request
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> current_location
+    <span class="kw">if</span> city &amp;&amp; state
+      [city, state].join <span class="st">', '</span>
+    <span class="kw">else</span>
+      <span class="st">''</span>
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+
+  <span class="kw">private</span>
+
+  delegate <span class="st">:city</span>, <span class="st">:state</span>, to: <span class="st">:location</span>
+  delegate <span class="st">:location</span>, to: <span class="st">:@request</span>
+<span class="kw">end</span></code></pre>
+<p>Within the controller, we specify a <code>class_attribute :request_geocoding_gatherer</code> and assign it to our new class to retrieve the current location string from the <code>request</code>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/controllers/locations_controller.rb</span>
+<span class="kw">class</span> <span class="dt">LocationsController</span> &lt; <span class="dt">ApplicationController</span>
+  class_attribute <span class="st">:request_geocoding_gatherer</span>
+  <span class="dv">self</span>.request_geocoding_gatherer = <span class="dt">RequestGeocodingGatherer</span>
+
+  <span class="kw">def</span> index
+    <span class="ot">@current_location_by_ip</span> = geocoded_request_information.current_location
+    <span class="ot">@locations</span> <span class="kw">= if</span> search_value.present?
+                   <span class="dt">Location</span>.near(search_value)
+                 <span class="kw">else</span>
+                   <span class="dt">Location</span>.all
+                 <span class="kw">end</span>
+  <span class="kw">end</span>
+
+  <span class="kw">private</span>
+
+  <span class="kw">def</span> search_value
+    params[<span class="st">:search</span>] &amp;&amp; params[<span class="st">:search</span>][<span class="st">:value</span>]
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> geocoded_request_information
+    request_geocoding_gatherer.new(request)
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>In the view, we set the search field's placeholder to <code>@current_location_by_ip</code>:</p>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/locations/index.html.erb
+<span class="kw">&lt;%=</span> form_for <span class="st">:search</span>, method: <span class="st">:get</span>, url: root_path <span class="kw">do</span> <span class="ch">|</span>form<span class="ch">|</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;%=</span> form.label <span class="st">:value</span>, <span class="st">'Search by Location'</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;%=</span> form.text_field <span class="st">:value</span>, placeholder: <span class="ot">@current_location_by_ip</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;%=</span> form.submit <span class="st">'Search'</span> <span class="kw">%&gt;</span>
+<span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span></code></pre>
+</section>
+<section class="level3" id="testing">
+<h3><a href="#testing">Testing</a></h3>
+<ul>
+<li><a href="#geocoding-with-an-external-service">Geocoding with an External Service</a></li>
+</ul>
+<p></p>
+</section>
+</section>
+<section class="level2" id="cache-results-from-external-requests">
+<h2><a href="#cache-results-from-external-requests">Cache Results from External Requests</a></h2>
+<p>The <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem provides support for caching responses from external geocoding services by URL. When your application attempts to geocode a location that has already been geocoded, the gem will return the cached response for the request URL.</p>
+<p>Start by defining a class to encapsulate the cache. In this example, we're using Memcache (because it works immediately with <code>Rails.cache</code>), but Redis is also supported. <a href="https://github.com/alexreisner/geocoder">Geocoder</a> requires that the cache object implement the following four methods:</p>
+<ol type="1">
+<li><code>CacheClassName#[](key)</code></li>
+<li><code>CacheClassName#[]=(key, value)</code></li>
+<li><code>CacheClassName#del(key)</code></li>
+<li><code>CacheClassName#keys</code></li>
+</ol>
+<p>The first three methods are invoked when setting, retrieving and deleting key-value pairs. The last method, <code>CacheClassName#keys</code>, is invoked only when clearing out the cache; in this implementation, it returns an empty array:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/geocoder_cache.rb</span>
+<span class="kw">class</span> <span class="dt">GeocoderCache</span>
+  <span class="dt">CACHE_KEY</span> = <span class="st">'geocoder_cache'</span>
+
+  <span class="kw">def</span> initialize(store = <span class="dt">Rails</span>.cache)
+    <span class="ot">@store</span> = store
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> []=(key, value)
+    <span class="kw">if</span> value.nil?
+      del key
+    <span class="kw">else</span>
+      write_to_store key, value
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> [](key)
+    read_from_store key
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> keys
+    []
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> del(key)
+    store.delete full_key(key)
+  <span class="kw">end</span>
+
+  <span class="kw">private</span>
+
+  <span class="kw">def</span> full_key(key)
+    [<span class="dt">CACHE_KEY</span>, key].join(<span class="st">' '</span>).parameterize
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> read_from_store(key)
+    store.read full_key(key)
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> store
+    <span class="ot">@store</span>
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> write_to_store(key, value)
+    store.write full_key(key), value
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>Next, configure the cache store in an initializer:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># config/initializers/geocoder.rb</span>
+<span class="dt">Geocoder</span>.configure(cache: <span class="dt">GeocoderCache</span>.new)</code></pre>
+<p>Finally, ensure that you configure the <code>cache_store</code> setting within your Rails application correctly in your test environment:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># config/environments/test.rb</span>
+config.cache_store = <span class="st">:null_store</span></code></pre>
+<p>This disallows cached values within your test environment, which means you can be confident that any tests you write don't rely inadvertently on state from other tests.</p>
+<section class="level3" id="testing-1">
+<h3><a href="#testing-1">Testing</a></h3>
+<ul>
+<li><a href="#testing-geocodercache">Testing <code>GeocoderCache</code></a></li>
+</ul>
+<p></p>
+</section>
+</section>
+</section>
+<section class="level1" id="closing">
+<h1><a href="#closing">Closing</a></h1>
+<p>Thanks for checking out the sample of <em>Geocoding on Rails</em>. If you’d like to get access to the full content, the example application, ongoing updates, and the ability to get your questions about Ruby on Rails answered by us, you can pick it up on our website:</p>
+<p><a href="https://learn.thoughtbot.com/geocodingonrails">https://learn.thoughtbot.com/geocodingonrails</a></p>
+</section>
+</body>
+</html>

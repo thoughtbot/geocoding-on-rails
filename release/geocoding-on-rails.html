@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="thoughtbot">
+  <meta name="author" content="Laila Winner">
+  <meta name="author" content="Josh Clayton">
+  <title>Geocoding on Rails</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+</head>
+<body>
+<header>
+<h1 class="title">Geocoding on Rails</h1>
+<h2 class="author">thoughtbot</h2>
+<h2 class="author">Laila Winner</h2>
+<h2 class="author">Josh Clayton</h2>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#geocoding-in-rails-applications">Geocoding in Rails Applications</a></li>
+<li><a href="#local-data">Local Data</a><ul>
+<li><a href="#calculating-coordinates">Calculating Coordinates</a></li>
+</ul></li>
+<li><a href="#external-services">External Services</a><ul>
+<li><a href="#choosing-a-service">Choosing a Service</a></li>
+<li><a href="#calculating-coordinates-1">Calculating Coordinates</a></li>
+</ul></li>
+<li><a href="#web-requests">Web Requests</a><ul>
+<li><a href="#calculating-a-users-location-by-ip-address">Calculating a User's Location by IP Address</a></li>
+<li><a href="#calculating-a-users-location-from-a-web-browser">Calculating a User's Location from a Web Browser</a></li>
+</ul></li>
+<li><a href="#introduction-1">Introduction</a></li>
+<li><a href="#search-data-locally">Search Data Locally</a><ul>
+<li><a href="#changes-to-the-controller-and-view">Changes to the Controller and View</a></li>
+<li><a href="#changes-to-the-model">Changes to the Model</a></li>
+<li><a href="#testing">Testing</a></li>
+</ul></li>
+<li><a href="#plot-points-on-a-map">Plot Points on a Map</a><ul>
+<li><a href="#changes-to-the-view">Changes to the View</a></li>
+</ul></li>
+<li><a href="#search-data-externally">Search Data Externally</a><ul>
+<li><a href="#changes-to-the-controller-and-view-1">Changes to the Controller and View</a></li>
+<li><a href="#changes-to-the-model-1">Changes to the Model</a></li>
+<li><a href="#testing-1">Testing</a></li>
+</ul></li>
+<li><a href="#geocode-existing-data">Geocode Existing Data</a></li>
+<li><a href="#geocode-browser-requests-on-the-server-side">Geocode Browser Requests on the Server Side</a><ul>
+<li><a href="#changes-to-the-controller-and-view-2">Changes to the Controller and View</a></li>
+<li><a href="#testing-2">Testing</a></li>
+</ul></li>
+<li><a href="#geocode-browser-requests-on-the-client-side">Geocode Browser Requests on the Client Side</a><ul>
+<li><a href="#changes-to-the-view-1">Changes to the View</a></li>
+<li><a href="#testing-3">Testing</a></li>
+</ul></li>
+<li><a href="#introduction-2">Introduction</a></li>
+<li><a href="#cache-results-from-external-requests">Cache Results from External Requests</a><ul>
+<li><a href="#testing-4">Testing</a></li>
+</ul></li>
+<li><a href="#geocode-only-when-necessary">Geocode Only When Necessary</a><ul>
+<li><a href="#changes-to-the-model-2">Changes to the Model</a></li>
+<li><a href="#testing-5">Testing</a></li>
+</ul></li>
+<li><a href="#speed-up-proximity-queries-with-postgis">Speed Up Proximity Queries with PostGIS</a><ul>
+<li><a href="#what-is-postgis">What is PostGIS?</a></li>
+<li><a href="#why-is-postgis-faster">Why is PostGIS Faster?</a></li>
+<li><a href="#how-do-i-use-postgis">How Do I Use PostGIS?</a></li>
+</ul></li>
+<li><a href="#testing-a-rails-application-with-geocoded-data">Testing a Rails Application with Geocoded Data</a></li>
+<li><a href="#acceptance-tests">Acceptance Tests</a></li>
+<li><a href="#unit-tests">Unit Tests</a><ul>
+<li><a href="#geocoding-with-an-external-service">Geocoding with an External Service</a></li>
+<li><a href="#testing-geocodercache">Testing <code>GeocoderCache</code></a></li>
+<li><a href="#testing-to-ensure-objects-are-geocoded-only-when-necessary">Testing to Ensure Objects are Geocoded Only When Necessary</a></li>
+<li><a href="#decoupling-our-application-from-the-geocoding-service-entirely">Decoupling Our Application From the Geocoding Service Entirely</a></li>
+<li><a href="#ensuring-no-external-requests-are-made-during-geocoding">Ensuring No External Requests are Made during Geocoding</a></li>
+</ul></li>
+<li><a href="#coffeescript-unit-tests">CoffeeScript Unit Tests</a><ul>
+<li><a href="#testing-exampleapp.currentlocation">Testing <code>ExampleApp.CurrentLocation</code></a></li>
+<li><a href="#testing-exampleapp.reversegeocoder">Testing <code>ExampleApp.ReverseGeocoder</code></a></li>
+<li><a href="#validating-reverse-geocoding-in-the-browser">Validating Reverse Geocoding in the Browser</a></li>
+<li><a href="#testing-the-google-map">Testing the Google Map</a></li>
+</ul></li>
+<li><a href="#gems">Gems</a><ul>
+<li><a href="#geocoder">Geocoder</a></li>
+<li><a href="#geokit">GeoKit</a></li>
+<li><a href="#graticule">Graticule</a></li>
+<li><a href="#area">Area</a></li>
+<li><a href="#geoip">GeoIP</a></li>
+</ul></li>
+<li><a href="#using-postgis-with-rails-and-heroku">Using PostGIS with Rails and Heroku</a><ul>
+<li><a href="#using-postgis-in-your-rails-application">Using PostGIS in Your Rails Application</a></li>
+<li><a href="#setting-up-continuous-integration-with-postgis">Setting Up Continuous Integration with PostGIS</a></li>
+<li><a href="#setting-up-postgis-for-heroku">Setting Up PostGIS for Heroku</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+<p></p>
+<section class="level1" id="introduction">
+<h1><a href="#introduction">Introduction</a></h1>
+<blockquote>
+<p>&quot;The world is a beautiful book, but it's not much use if you don’t know how to read.&quot; -- Carlo Goldoni, <em>Pamela</em></p>
+</blockquote>
+<p>The human desire to acquire knowledge of the natural world has produced countless systems for aggregating, manipulating, and representing geospatial information. In recent years--now that we're all generally agreed on the shape of the Earth--it has also produced a lot of software.</p>
+<p>Working with geocoded data within the context of a web application can be tricky. While the availability of free and open-source libraries has greatly simplified the challenges of accurately geocoding data and performing meaningful analysis, there are still a plethora of decisions to be made before the first line of code is written: <em>What tools should we use? Where should the business logic live? What's the best way to write a test for this?</em> And after the feature has been built, <em>Is it fast enough?</em></p>
+<p><em>Geocoding on Rails</em> is a resource for developers seeking an object-oriented, test-driven approach to working with geocoded data within Rails applications. It is divided into four sections:</p>
+<ol type="1">
+<li><strong>Strategies</strong> for selecting an external geocoding service</li>
+<li><strong>Application Development</strong> approaches for organizing your code as you're developing features</li>
+<li><strong>Improving Application Performance</strong> with caching and other techniques</li>
+<li><strong>Testing</strong> techniques for your server- and client-side code</li>
+</ol>
+<p>The code samples in this book come from commits in the <a href="https://github.com/thoughtbot/geocoding_on_rails/tree/master/example_app">bundled example application</a>. The example application is a Rails app which lets users search for Starbucks locations nearby. Take a look at the <a href="https://github.com/thoughtbot/geocoding_on_rails/blob/master/example_app/README.md">README</a> for instructions on setting it up.</p>
+<p></p>
+<section class="level2" id="geocoding-in-rails-applications">
+<h2><a href="#geocoding-in-rails-applications">Geocoding in Rails Applications</a></h2>
+<p>Geocoding is the process of obtaining coordinates (latitude and longitude) with full or partial address information. This information commonly takes the form of a postal code, full street address or the name of a point of interest, such as a library or airport. An application with geocoded data typically manages two aspects of data interaction:</p>
+<ol type="1">
+<li>Create data specific to a coordinate</li>
+<li>Query against data near a coordinate</li>
+</ol>
+<p>Within a Rails application, objects may have address information which needs to be plotted on a map or compared to other records in the database; in cases like this, the address must be geocoded to a geographic coordinate which can be used for displaying information or querying against.</p>
+<p>There are <a href="#gems">plenty of gems</a> that automate the process of geocoding data as it's added or updated. The geocoded object often exposes a method to be used during the geocoding process; the gem then updates the object's latitude and longitude after calculating its position. The gem also handles interactions with any external geocoding services.</p>
+<p>Geocoding can also be performed <a href="#web-requests">on the client side</a>: The W3C geolocation API is supported by most browsers, and organizations like Google and Yandex maintain JavaScript APIs for their mapping services.</p>
+</section>
+<section class="level2" id="local-data">
+<h2><a href="#local-data">Local Data</a></h2>
+<p>The most basic approach to integrating geocoding functionality is to maintain a local resource that maps address information to geographic coordinates.</p>
+<section class="level3" id="calculating-coordinates">
+<h3><a href="#calculating-coordinates">Calculating Coordinates</a></h3>
+<p>The <a href="https://github.com/jgv/area">area</a> gem relies on public domain records and does not make external requests to geocode addresses. This gem provides a simple interface for converting ZIP codes to coordinates by adding the method <code>#to_latlon</code> to <code>String</code>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="st">'02101'</span>.to_latlng <span class="co"># &quot;42.370567, -71.026964&quot;</span></code></pre>
+<p>Although it's possible to use <a href="https://github.com/jgv/area">area</a> to convert city and state to a ZIP code, such conversions are unreliable and error-prone because <a href="https://github.com/jgv/area">area</a> operates on static data:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="st">'Washington DC'</span>.to_zip <span class="co"># []</span>
+<span class="st">'Washington, DC'</span>.to_zip <span class="co"># [&quot;20001&quot;, &quot;20002&quot;, ...]</span>
+<span class="st">'Washington, D.C.'</span>.to_zip <span class="co"># []</span></code></pre>
+<p>While the flaws in the data may be a deterrent to using gems which don't interact with an external service, geocoding with <a href="https://github.com/jgv/area">area</a> is very fast and is sufficient if you only need to geocode US ZIP codes.</p>
+</section>
+</section>
+<section class="level2" id="external-services">
+<h2><a href="#external-services">External Services</a></h2>
+<section class="level3" id="choosing-a-service">
+<h3><a href="#choosing-a-service">Choosing a Service</a></h3>
+<p>Selecting a geocoding service is best done with an estimate in mind of the daily volume of requests your application is likely to make. The free geocoding services offered by <a href="https://developers.google.com/maps/documentation/geocoding/">Google</a> and <a href="http://api.yandex.com/maps/">Yandex</a> are appropriate for most cases, but if their rate limits are too low for your needs, you may want to consider subscribing to a paid service.</p>
+<p>Google and Yandex offer free services with rate limits of 2,500 and 25,000 requests per day, respectively. Client-side requests to the Google Geocoding API <a href="https://developers.google.com/maps/articles/geocodestrat#client">do not count toward the rate limit</a>. <a href="https://developers.google.com/maps/documentation/business/">Google Maps for Business</a> is a paid service with a rate limit of 100,000 requests per day. Other good options for paid services are <a href="http://developer.yahoo.com/boss/geo/">Yahoo BOSS</a> and <a href="http://geocoder.ca/?services=1">Geocoder.ca</a> (US and Canada only).</p>
+<p>While the free Google and Yandex services are robust and well-documented, open-source services are also worth considering. For example, using <a href="http://wiki.openstreetmap.org/wiki/Nominatim">Nominatim</a> or <a href="http://www.datasciencetoolkit.org/">Data Science Toolkit</a> allows your application to be independent of Google's or Yandex's terms of service.</p>
+</section>
+<section class="level3" id="calculating-coordinates-1">
+<h3><a href="#calculating-coordinates-1">Calculating Coordinates</a></h3>
+<p>Gems like <a href="https://github.com/alexreisner/geocoder">geocoder</a> provide a simple interface for querying an external service to convert any string to a coordinate. External services vary in support for points of interest (such as hotels and airports, rather than specific addresses), but will provide results for most types of queries:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="dt">Geocoder</span>.coordinates(<span class="st">'Logan Airport'</span>)
+<span class="co"># [42.36954300000001, -71.020061]</span>
+
+<span class="dt">Geocoder</span>.coordinates(<span class="st">'washington dc'</span>)
+<span class="co"># [38.8951118, -77.0363658]</span></code></pre>
+<p>The request results will have varying levels of accuracy depending on the external service. This is significantly better than relying on <a href="#local-data">local data</a> because of the external service's ability to infer information from the string. However, geocoding with an external service is slower than geocoding locally--a single request will often take as long as 50ms to 150ms.</p>
+</section>
+</section>
+<section class="level2" id="web-requests">
+<h2><a href="#web-requests">Web Requests</a></h2>
+<section class="level3" id="calculating-a-users-location-by-ip-address">
+<h3><a href="#calculating-a-users-location-by-ip-address">Calculating a User's Location by IP Address</a></h3>
+<p>Many applications ask users to provide their current location in order to perform a search for addresses nearby. However, it's often possible to retrieve this information from the browser request itself.</p>
+<p>The <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem <a href="https://github.com/alexreisner/geocoder#request-geocoding-by-ip-address">provides a <code>#location</code> method on the <code>request</code> object</a> which returns a location result with latitude and longitude:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby">&gt; request.location
+=&gt; <span class="co">#&lt;Geocoder::Result::Freegeoip:0x007f8ecca5d608</span>
+     <span class="ot">@cache_hit</span>=<span class="dv">true</span>,
+     <span class="ot">@data</span>= {
+       <span class="st">&quot;ip&quot;</span>=&gt;<span class="st">&quot;199.21.87.210&quot;</span>,
+       <span class="st">&quot;country_code&quot;</span>=&gt;<span class="st">&quot;US&quot;</span>,
+       <span class="st">&quot;country_name&quot;</span>=&gt;<span class="st">&quot;United States&quot;</span>,
+       <span class="st">&quot;region_code&quot;</span>=&gt;<span class="st">&quot;CA&quot;</span>,
+       <span class="st">&quot;region_name&quot;</span>=&gt;<span class="st">&quot;California&quot;</span>,
+       <span class="st">&quot;city&quot;</span>=&gt;<span class="st">&quot;Berkeley&quot;</span>,
+       <span class="st">&quot;zipcode&quot;</span>=&gt;<span class="st">&quot;&quot;</span>,
+       <span class="st">&quot;latitude&quot;</span>=&gt;<span class="fl">37.8716</span>,
+       <span class="st">&quot;longitude&quot;</span>=&gt;-<span class="fl">122.2728</span>,
+       <span class="st">&quot;metro_code&quot;</span>=&gt;<span class="st">&quot;807&quot;</span>,
+       <span class="st">&quot;areacode&quot;</span>=&gt;<span class="st">&quot;510&quot;</span>
+     }&gt;</code></pre>
+<p>Determining a user's location via IP address interacts with a different set of services than <a href="#choosing-a-service">attempting to convert a physical address to a coordinate</a>; in the example above, the <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem is using the <a href="http://freegeoip.net/">freegeoip.net</a> service.</p>
+</section>
+<section class="level3" id="calculating-a-users-location-from-a-web-browser">
+<h3><a href="#calculating-a-users-location-from-a-web-browser">Calculating a User's Location from a Web Browser</a></h3>
+<p>Within a web browser, the <a href="http://dev.w3.org/geo/api/spec-source.html">W3C Geolocation API</a> provides location data accessible <a href="http://diveintohtml5.info/geolocation.html#the-code">with JavaScript</a>:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="kw">navigator</span>.<span class="fu">geolocation</span>.<span class="fu">getCurrentPosition</span>(successCallback, failureCallback);</code></pre>
+<p>The <a href="http://dev.w3.org/geo/api/spec-source.html">W3C Geolocation API</a> is agnostic in how it calculates location. Depending on the user's device, location may be determined by GPS, inferred based on network IP addresses or triangulated based on distance from cellular towers.</p>
+<p></p>
+</section>
+</section>
+<section class="level2" id="introduction-1">
+<h2><a href="#introduction-1">Introduction</a></h2>
+<p>The chapters in this section outline recommended approaches to building features that rely on the presence of geocoded data. As a starting point, let's assume we have a few thousand records in our database, each with accurate address information.</p>
+<p>Without the ability to query our data by location, we can start by displaying addresses:</p>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/locations/index.html.erb
+<span class="kw">&lt;ul</span><span class="ot"> class=</span><span class="st">&quot;locations&quot;</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;%</span> <span class="ot">@locations</span>.each <span class="kw">do</span> <span class="ch">|</span>location<span class="ch">|</span> <span class="kw">%&gt;</span>
+    <span class="kw">&lt;li</span><span class="ot"> data-id=</span><span class="st">&quot;</span><span class="kw">&lt;%=</span> location.id <span class="kw">%&gt;</span><span class="st">&quot;</span><span class="kw">&gt;</span>
+      <span class="kw">&lt;p&gt;&lt;%=</span> location.name <span class="kw">%&gt;&lt;/p&gt;</span>
+      <span class="kw">&lt;p&gt;</span>
+        <span class="kw">&lt;%=</span> location.street_line_1 <span class="kw">%&gt;&lt;br&gt;</span>
+        <span class="kw">&lt;%=</span> location.street_line_2 <span class="kw">%&gt;&lt;br&gt;</span>
+        <span class="kw">&lt;%=</span> location.city <span class="kw">%&gt;</span>, <span class="kw">&lt;%=</span> location.state <span class="kw">%&gt;</span> <span class="kw">&lt;%=</span> location.postal_code <span class="kw">%&gt;</span>
+      <span class="kw">&lt;/p&gt;</span>
+    <span class="kw">&lt;/li&gt;</span>
+  <span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span>
+<span class="kw">&lt;/ul&gt;</span></code></pre>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/controllers/locations_controller.rb</span>
+<span class="kw">class</span> <span class="dt">LocationsController</span> &lt; <span class="dt">ApplicationController</span>
+  <span class="kw">def</span> index
+    <span class="ot">@locations</span> = <span class="dt">Location</span>.all
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/location.rb</span>
+<span class="kw">class</span> <span class="dt">Location</span> &lt; <span class="dt">ActiveRecord</span>::<span class="dt">Base</span>
+  validates <span class="st">:store_number</span>, uniqueness: <span class="dv">true</span>
+<span class="kw">end</span></code></pre>
+<p>While displaying this information is informative, it does not provide much value to users seeking to filter or visualize results by location. To facilitate meaningful interactions with our data we need to add features like searching and user geolocation.</p>
+</section>
+<section class="level2" id="search-data-locally">
+<h2><a href="#search-data-locally">Search Data Locally</a></h2>
+<p>To start geocoding <code>Location</code>, we will add two previously mentioned gems: <a href="https://github.com/jgv/area">area</a> and <a href="https://github.com/alexreisner/geocoder">geocoder</a>. <a href="https://github.com/jgv/area">Area</a> will be used to geocode <code>Location</code> based on postal code, while <a href="https://github.com/alexreisner/geocoder">geocoder</a> will be used to do a radial search for locations within a distance.</p>
+<section class="level3" id="changes-to-the-controller-and-view">
+<h3><a href="#changes-to-the-controller-and-view">Changes to the Controller and View</a></h3>
+<p>Instead of just assigning <code>Location.all</code> to <code>@locations</code>, we take into account possible search values; when a value is present, we call the method <code>Location.near</code> (provided by the <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem), which adds some trigonometry to the SQL query to search within a certain radius. Without a search term, however, we continue to use <code>Location.all</code>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/controllers/locations_controller.rb</span>
+<span class="kw">def</span> index
+  <span class="ot">@locations</span> <span class="kw">= if</span> near_query.present?
+                 <span class="dt">Location</span>.near(near_query)
+               <span class="kw">else</span>
+                 <span class="dt">Location</span>.all
+               <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>The method <code>.near</code> provided by <a href="https://github.com/alexreisner/geocoder">geocoder</a> is flexible; at this point, we provide coordinates calculated by the <a href="https://github.com/jgv/area">area</a> gem (and rolled up into the <code>PostalCode</code> class). By providing coordinates, this ensures the <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem does not hit any external services to calculate the center of the search, which makes for a more efficient process and supports faster page load:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/controllers/locations_controller.rb</span>
+<span class="kw">def</span> near_query
+  <span class="dt">PostalCode</span>.new(search_value).coordinates
+<span class="kw">end</span>
+
+<span class="kw">def</span> search_value
+  params[<span class="st">:search</span>] &amp;&amp; params[<span class="st">:search</span>][<span class="st">:value</span>]
+<span class="kw">end</span></code></pre>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/postal_code.rb</span>
+<span class="kw">class</span> <span class="dt">PostalCode</span>
+  <span class="kw">def</span> initialize(value)
+    <span class="ot">@value</span> = value
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> for_geocoding
+    <span class="kw">if</span> <span class="ot">@value</span>.present?
+      (<span class="st">'%05d'</span> % <span class="ot">@value</span>.to_s.gsub(<span class="ot">/\A(\d+)(-\d+)?\z/</span>, <span class="st">'\1'</span>).to_i).first(<span class="dv">5</span>)
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> coordinates
+    <span class="kw">if</span> for_geocoding &amp;&amp; latlon = for_geocoding.to_latlon
+      latlon.split(<span class="ot">/\,/</span>).map(&amp;<span class="st">:strip</span>).map(&amp;<span class="st">:to_f</span>)
+    <span class="kw">else</span>
+      []
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>The view changes very little, adding only a form to allow for searching:</p>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/locations/index.html.erb
+<span class="kw">&lt;%=</span> form_for <span class="st">:search</span>, method: <span class="st">:get</span>, url: root_path <span class="kw">do</span> <span class="ch">|</span>form<span class="ch">|</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;%=</span> form.label <span class="st">:value</span>, <span class="st">'Search by Postal Code'</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;%=</span> form.text_field <span class="st">:value</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;%=</span> form.submit <span class="st">'Search'</span> <span class="kw">%&gt;</span>
+<span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span></code></pre>
+</section>
+<section class="level3" id="changes-to-the-model">
+<h3><a href="#changes-to-the-model">Changes to the Model</a></h3>
+<p>The model now needs to do two things: know how to update its coordinates when the model is updated and recognize itself as a geocodable model.</p>
+<p>To update coordinates, adding an <code>after_validation</code> callback to geocode the model is most straightforward:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/location.rb</span>
+<span class="kw">class</span> <span class="dt">Location</span> &lt; <span class="dt">ActiveRecord</span>::<span class="dt">Base</span>
+  validates <span class="st">:store_number</span>, uniqueness: <span class="dv">true</span>
+  geocoded_by <span class="st">:country_code</span>
+
+  after_validation <span class="st">:geocode_by_postal_code</span>, <span class="kw">if</span>: <span class="st">:postal_code?</span>
+
+  <span class="kw">private</span>
+
+  <span class="kw">def</span> geocode_by_postal_code
+    <span class="dv">self</span>.latitude, <span class="dv">self</span>.longitude = <span class="dt">PostalCode</span>.new(postal_code).coordinates
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>This callback relies on <code>PostalCode</code>, taking advantage of the <a href="https://github.com/jgv/area">area</a> gem to convert <code>#postal_code</code> to useable coordinates.</p>
+<p>To add the <code>.near</code> class method for searching based on location, the model needs to declare the attribute or method (passed as a symbol to <code>geocoded_by</code>) by which it can be geocoded. Because geocoding is being handled by the <code>PostalCode</code> class and not the <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem, the attribute <code>:country_code</code> is perfectly acceptable for the current use case. When hitting an external service like Google, however, we'll need to change this attribute to something more specific, such as street address.</p>
+</section>
+<section class="level3" id="testing">
+<h3><a href="#testing">Testing</a></h3>
+<ul>
+<li><a href="#unit-tests">Unit Tests</a></li>
+</ul>
+</section>
+</section>
+<section class="level2" id="plot-points-on-a-map">
+<h2><a href="#plot-points-on-a-map">Plot Points on a Map</a></h2>
+<p>At this point, all the data has been geocoded; the next step is to display this information by rendering each location on a map. This allows users to understand spatial relationships between the data points.</p>
+<p>We'll be using the <a href="https://developers.google.com/maps/documentation/javascript/">Google Maps JavaScript API</a> to display a map and plot a marker for each location. Because requests to the Google Maps API are made on the client side, there are no changes to the controller or model.</p>
+<section class="level3" id="changes-to-the-view">
+<h3><a href="#changes-to-the-view">Changes to the View</a></h3>
+<p>Before jumping into querying the maps API, we make some decisions about how we're going to organize our client-side scripts.</p>
+<p>First, we create a namespace for our application:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># app/assets/javascripts/base.coffee</span>
+<span class="dt">@ExampleApp</span> <span class="kw">=</span> <span class="kw">{}</span></code></pre>
+<p>Then we create a <code>javascript.html.erb</code> partial which will be rendered in the application layout body:</p>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/application/_javascript.html.erb
+<span class="kw">&lt;%=</span> javascript_include_tag <span class="st">&quot;application&quot;</span>, <span class="st">&quot;data-turbolinks-track&quot;</span> <span class="ch">=&gt;</span> <span class="dv">true</span> <span class="kw">%&gt;</span>
+<span class="kw">&lt;%=</span> <span class="kw">yield</span> <span class="st">:javascript</span> <span class="kw">%&gt;</span></code></pre>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/layouts/application.html.erb
+<span class="kw">&lt;body&gt;</span>
+  <span class="kw">&lt;div</span><span class="ot"> class=</span><span class="st">&quot;container&quot;</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;%=</span> <span class="kw">yield</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;/div&gt;</span>
+
+  <span class="kw">&lt;%=</span> render <span class="st">'javascript'</span> <span class="kw">%&gt;</span>
+<span class="kw">&lt;/body&gt;</span></code></pre>
+<p>With our initial setup complete, we now create some CoffeeScript classes to handle interactions with the maps API. We begin by creating a <code>Mapper</code> to display the map on the page with markers placed at the correct coordinates:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># app/assets/javascripts/mapper.coffee</span>
+<span class="kw">class</span> <span class="dt">@ExampleApp.Mapper</span>
+  <span class="kw">constructor:</span> <span class="fu">(cssSelector) -&gt;</span>
+    <span class="dt">@cssSelector</span> <span class="kw">=</span> cssSelector
+    <span class="dt">@map</span> <span class="kw">=</span> <span class="ot">null</span>
+    <span class="dt">@bounds</span> <span class="kw">=</span> <span class="kw">new</span> <span class="dt">ExampleApp.MapBounds</span>
+
+  addCoordinates<span class="kw">:</span> <span class="fu">(latitude, longitude) -&gt;</span>
+    <span class="kw">if</span> <span class="kw">!</span>_<span class="kw">.</span>isEmpty<span class="kw">(</span>latitude<span class="kw">)</span> <span class="kw">and</span> <span class="kw">!</span>_<span class="kw">.</span>isEmpty<span class="kw">(</span>longitude<span class="kw">)</span>
+      <span class="dt">@bounds</span><span class="kw">.</span>add<span class="kw">(</span>latitude<span class="kw">,</span> longitude<span class="kw">)</span>
+
+  render<span class="kw">:</span> <span class="fu">=&gt;</span>
+    <span class="dt">@map</span> <span class="kw">=</span> <span class="kw">new</span> <span class="dt">ExampleApp.Map</span><span class="kw">(</span><span class="dt">@cssSelector</span><span class="kw">,</span> <span class="dt">@bounds</span><span class="kw">)</span>
+    <span class="dt">@map</span><span class="kw">.</span>build<span class="kw">()</span></code></pre>
+<p>Next we create a <code>MapBounds</code> class which provides a simple interface for interacting with Google's representation of coordinates and bounds:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># app/assets/javascripts/map_bounds.coffee</span>
+<span class="kw">class</span> <span class="dt">@ExampleApp.MapBounds</span>
+  <span class="kw">constructor:</span> <span class="fu">-&gt;</span>
+    <span class="dt">@googleLatLngBounds</span> <span class="kw">=</span> <span class="kw">new</span> <span class="dt">google.maps.LatLngBounds</span><span class="kw">()</span>
+    <span class="dt">@latLngs</span> <span class="kw">=</span> <span class="kw">[]</span>
+
+  add<span class="kw">:</span> <span class="fu">(latitude, longitude) -&gt;</span>
+    latLng <span class="kw">=</span> <span class="kw">new</span> <span class="dt">google.maps.LatLng</span><span class="kw">(</span>latitude<span class="kw">,</span> longitude<span class="kw">)</span>
+    <span class="dt">@googleLatLngBounds</span><span class="kw">.</span>extend<span class="kw">(</span>latLng<span class="kw">)</span>
+    <span class="dt">@latLngs</span><span class="kw">.</span>push<span class="kw">(</span>latLng<span class="kw">)</span>
+
+  getCenter<span class="kw">:</span> <span class="fu">-&gt;</span>
+    <span class="dt">@googleLatLngBounds</span><span class="kw">.</span>getCenter<span class="kw">()</span></code></pre>
+<p>We also create a <code>Map</code> class to provide a simple interface to the Google Maps JavaScript API for rendering a responsive map:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># app/assets/javascripts/map.coffee</span>
+<span class="kw">class</span> <span class="dt">@ExampleApp.Map</span>
+  <span class="kw">constructor:</span> <span class="fu">(cssSelector, bounds) -&gt;</span>
+    <span class="dt">@googleMap</span> <span class="kw">=</span> <span class="kw">new</span> <span class="dt">google.maps.Map</span><span class="kw">(</span>$<span class="kw">(</span>cssSelector<span class="kw">)[</span><span class="dv">0</span><span class="kw">],</span> <span class="dt">@_mapOptions</span><span class="kw">())</span>
+    <span class="dt">@bounds</span> <span class="kw">=</span> bounds
+
+    $<span class="kw">(</span>window<span class="kw">).</span><span class="ot">on</span> <span class="st">'resize'</span><span class="kw">,</span> <span class="fu">=&gt;</span>
+      google<span class="kw">.</span>maps<span class="kw">.</span>event<span class="kw">.</span>trigger<span class="kw">(</span><span class="dt">@googleMap</span><span class="kw">,</span> <span class="st">'resize'</span><span class="kw">)</span>
+      <span class="dt">@_updateCenter</span><span class="kw">()</span>
+
+  build<span class="kw">:</span> <span class="fu">-&gt;</span>
+    <span class="dt">@_updateCenter</span><span class="kw">()</span>
+    <span class="dt">@_plotCoordinates</span><span class="kw">()</span>
+
+  _updateCenter<span class="kw">:</span> <span class="fu">-&gt;</span>
+    <span class="dt">@googleMap</span><span class="kw">.</span>fitBounds <span class="dt">@bounds</span><span class="kw">.</span>googleLatLngBounds
+    <span class="dt">@googleMap</span><span class="kw">.</span>setCenter <span class="dt">@bounds</span><span class="kw">.</span>getCenter<span class="kw">()</span>
+
+  _plotCoordinates<span class="kw">:</span> <span class="fu">-&gt;</span>
+    <span class="kw">for</span> latLng <span class="kw">in</span> <span class="dt">@bounds</span><span class="kw">.</span>latLngs
+      <span class="kw">new</span> <span class="dt">google.maps.Marker</span><span class="kw">(</span>position<span class="kw">:</span> latLng<span class="kw">,</span> map<span class="kw">:</span> <span class="dt">@googleMap</span><span class="kw">)</span>
+
+  _mapOptions<span class="kw">:</span> <span class="fu">-&gt;</span>
+    zoom<span class="kw">:</span> <span class="dv">13</span>
+    mapTypeId<span class="kw">:</span> google<span class="kw">.</span>maps<span class="kw">.</span>MapTypeId<span class="kw">.</span>SATELLITE</code></pre>
+<p>Finally, we add a function in the view which instantiates a <code>Mapper</code> and calls <code>addCoordinates()</code> and <code>render()</code> to display a map and plot each location on page load. We also add a <code>map</code> element to the DOM:</p>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/locations/index.html.erb
+<span class="kw">&lt;div</span><span class="ot"> id=</span><span class="st">&quot;map&quot;</span><span class="ot"> style=</span><span class="st">&quot;height: 400px;&quot;</span><span class="kw">&gt;&lt;/div&gt;</span>
+
+<span class="kw">&lt;ul</span><span class="ot"> class=</span><span class="st">&quot;locations&quot;</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;%</span> <span class="ot">@locations</span>.each <span class="kw">do</span> <span class="ch">|</span>location<span class="ch">|</span> <span class="kw">%&gt;</span>
+    <span class="kw">&lt;%=</span> render location <span class="kw">%&gt;</span>
+  <span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span>
+<span class="kw">&lt;/ul&gt;</span>
+
+<span class="kw">&lt;%</span> content_for <span class="st">:javascript</span> <span class="kw">do</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;script</span><span class="ot"> type=</span><span class="st">&quot;text/javascript&quot;</span>
+<span class="ot">    src=</span><span class="st">&quot;//maps.googleapis.com/maps/api/js?sensor=false&quot;</span><span class="kw">&gt;&lt;/script&gt;</span>
+
+  <span class="kw">&lt;%=</span> javascript_tag <span class="kw">do</span> <span class="kw">%&gt;</span>
+    $(function() {
+      var mapper = new ExampleApp.Mapper('#map');
+
+      $('[data-latitude]').each(function(index, element) {
+        mapper.addCoordinates(
+          $(element).attr('data-latitude'),
+          $(element).attr('data-longitude')
+        );
+      });
+
+      mapper.render();
+    });
+  <span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span>
+<span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span></code></pre>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/locations/_location.html.erb
+<span class="kw">&lt;%=</span> content_tag_for <span class="st">:li</span>, location,
+  data: <span class="ch">{</span> latitude: location.latitude, longitude: location.longitude <span class="ch">}</span> <span class="kw">do</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;header&gt;</span>
+    <span class="kw">&lt;h1</span><span class="ot"> data-role=</span><span class="st">&quot;name&quot;</span><span class="kw">&gt;&lt;%=</span> location.name <span class="kw">%&gt;&lt;/h1&gt;</span>
+    <span class="kw">&lt;%</span> <span class="kw">if</span> location.respond_to?(<span class="st">:distance</span>) <span class="kw">%&gt;</span>
+      <span class="kw">&lt;h2</span><span class="ot"> data-role=</span><span class="st">&quot;distance&quot;</span><span class="kw">&gt;&lt;%=</span> location.distance.round(<span class="dv">1</span>) <span class="kw">%&gt;</span> mi<span class="kw">&lt;/h2&gt;</span>
+    <span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;/header&gt;</span>
+  <span class="kw">&lt;section&gt;</span>
+    <span class="kw">&lt;section</span><span class="ot"> class=</span><span class="st">&quot;location-info&quot;</span><span class="kw">&gt;</span>
+      <span class="kw">&lt;p</span><span class="ot"> data-role=</span><span class="st">&quot;address&quot;</span><span class="kw">&gt;&lt;%=</span> location.address <span class="kw">%&gt;&lt;/p&gt;&lt;br&gt;</span>
+      <span class="kw">&lt;p</span><span class="ot"> data-role=</span><span class="st">&quot;phone-number&quot;</span><span class="kw">&gt;</span>
+        <span class="kw">&lt;%=</span> link_to location.phone_number, <span class="st">&quot;tel:</span><span class="ot">#{</span>location.phone_number<span class="ot">}</span><span class="st">&quot;</span> <span class="kw">%&gt;</span>
+      <span class="kw">&lt;/p&gt;</span>
+    <span class="kw">&lt;/section&gt;</span>
+  <span class="kw">&lt;/section&gt;</span>
+<span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span></code></pre>
+</section>
+</section>
+<section class="level2" id="search-data-externally">
+<h2><a href="#search-data-externally">Search Data Externally</a></h2>
+<p>While avoiding requests to third-party services results in faster geocoding and fewer dependencies, it is often inaccurate. Some postal codes cover hundreds of square miles; when plotting points on a map or performing a search, data accuracy is important. By relying on an external service to geocode data, coordinates become more accurate, searches become more helpful and maps provide greater value.</p>
+<section class="level3" id="changes-to-the-controller-and-view-1">
+<h3><a href="#changes-to-the-controller-and-view-1">Changes to the Controller and View</a></h3>
+<p>Instead of converting the search string (a postal code) to coordinates within the controller, we instead pass the search string directly to <code>Location.near</code>, which will handle the geocoding. Because the <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem is hitting an external service, the search string doesn't need to adhere to a specific format--the service will calculate coordinates as best it can. This removes the restriction of only searching by postal code, allowing users to search locations in a much more intuitive fashion:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/controllers/locations_controller.rb</span>
+<span class="kw">class</span> <span class="dt">LocationsController</span> &lt; <span class="dt">ApplicationController</span>
+  <span class="kw">def</span> index
+    <span class="ot">@locations</span> <span class="kw">= if</span> search_value.present?
+                   <span class="dt">Location</span>.near(search_value)
+                 <span class="kw">else</span>
+                   <span class="dt">Location</span>.all
+                 <span class="kw">end</span>
+  <span class="kw">end</span>
+
+  <span class="kw">private</span>
+
+  <span class="kw">def</span> search_value
+    params[<span class="st">:search</span>] &amp;&amp; params[<span class="st">:search</span>][<span class="st">:value</span>]
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+</section>
+<section class="level3" id="changes-to-the-model-1">
+<h3><a href="#changes-to-the-model-1">Changes to the Model</a></h3>
+<p>The model changes in two areas: <code>after_validation</code> calls the <code>#geocode</code> method (provided by the <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem) and the model now considers itself geocoded by <code>#address</code> instead of <code>#country_code</code>. Every time we validate the model, <a href="https://github.com/alexreisner/geocoder">geocoder</a> makes a request to an external service, updating the model's coordinates. While naive, this approach works well and is often more accurate than geocoding by postal code.</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/location.rb</span>
+<span class="kw">class</span> <span class="dt">Location</span> &lt; <span class="dt">ActiveRecord</span>::<span class="dt">Base</span>
+  validates <span class="st">:store_number</span>, uniqueness: <span class="dv">true</span>
+  geocoded_by <span class="st">:address</span>
+
+  after_validation <span class="st">:geocode</span>
+
+  <span class="kw">private</span>
+
+  <span class="kw">def</span> address
+    [street_line_1, street_line_2, city, state,
+      postal_code, country_code].compact.join <span class="st">', '</span>
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+</section>
+<section class="level3" id="testing-1">
+<h3><a href="#testing-1">Testing</a></h3>
+<ul>
+<li><a href="#geocoding-with-an-external-service">Geocoding with an External Service</a></li>
+</ul>
+</section>
+</section>
+<section class="level2" id="geocode-existing-data">
+<h2><a href="#geocode-existing-data">Geocode Existing Data</a></h2>
+<p>Once a model is able to geocode itself, the next task at hand is updating existing records with coordinates. The <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem provides a scope (<code>.not_geocoded</code>) which returns all records missing latitude and longitude.</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># lib/tasks/geocode_locations.rake</span>
+desc <span class="st">&quot;Fill in coordinates for locations which haven't been geocoded&quot;</span>
+task geocode_locations: <span class="st">:environment</span> <span class="kw">do</span>
+  <span class="dt">Location</span>.not_geocoded.each <span class="kw">do</span> |location|
+    location.geocode
+    location.save!
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+</section>
+<section class="level2" id="geocode-browser-requests-on-the-server-side">
+<h2><a href="#geocode-browser-requests-on-the-server-side">Geocode Browser Requests on the Server Side</a></h2>
+<p>Once data in the application is searchable based on values other than postal codes, there are a number of usability improvements that can be made; one is pre-populating the search field with a guess at the city and state of the user.</p>
+<section class="level3" id="changes-to-the-controller-and-view-2">
+<h3><a href="#changes-to-the-controller-and-view-2">Changes to the Controller and View</a></h3>
+<p>The <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem extends the <code>request</code> object within Rails controllers with a new method, <code>#location</code>, which exposes information about both city and state. By creating a new class, <code>RequestGeocodingGatherer</code>, to handle calculating city and state, we're able to keep this logic out of the controller and have small classes, each with their own responsibility:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/request_geocoding_gatherer.rb</span>
+<span class="kw">class</span> <span class="dt">RequestGeocodingGatherer</span>
+  <span class="kw">def</span> initialize(request)
+    <span class="ot">@request</span> = request
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> current_location
+    <span class="kw">if</span> city &amp;&amp; state
+      [city, state].join <span class="st">', '</span>
+    <span class="kw">else</span>
+      <span class="st">''</span>
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+
+  <span class="kw">private</span>
+
+  delegate <span class="st">:city</span>, <span class="st">:state</span>, to: <span class="st">:location</span>
+  delegate <span class="st">:location</span>, to: <span class="st">:@request</span>
+<span class="kw">end</span></code></pre>
+<p>Within the controller, we specify a <code>class_attribute :request_geocoding_gatherer</code> and assign it to our new class to retrieve the current location string from the <code>request</code>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/controllers/locations_controller.rb</span>
+<span class="kw">class</span> <span class="dt">LocationsController</span> &lt; <span class="dt">ApplicationController</span>
+  class_attribute <span class="st">:request_geocoding_gatherer</span>
+  <span class="dv">self</span>.request_geocoding_gatherer = <span class="dt">RequestGeocodingGatherer</span>
+
+  <span class="kw">def</span> index
+    <span class="ot">@current_location_by_ip</span> = geocoded_request_information.current_location
+    <span class="ot">@locations</span> <span class="kw">= if</span> search_value.present?
+                   <span class="dt">Location</span>.near(search_value)
+                 <span class="kw">else</span>
+                   <span class="dt">Location</span>.all
+                 <span class="kw">end</span>
+  <span class="kw">end</span>
+
+  <span class="kw">private</span>
+
+  <span class="kw">def</span> search_value
+    params[<span class="st">:search</span>] &amp;&amp; params[<span class="st">:search</span>][<span class="st">:value</span>]
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> geocoded_request_information
+    request_geocoding_gatherer.new(request)
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>In the view, we set the search field's placeholder to <code>@current_location_by_ip</code>:</p>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/locations/index.html.erb
+<span class="kw">&lt;%=</span> form_for <span class="st">:search</span>, method: <span class="st">:get</span>, url: root_path <span class="kw">do</span> <span class="ch">|</span>form<span class="ch">|</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;%=</span> form.label <span class="st">:value</span>, <span class="st">'Search by Location'</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;%=</span> form.text_field <span class="st">:value</span>, placeholder: <span class="ot">@current_location_by_ip</span> <span class="kw">%&gt;</span>
+  <span class="kw">&lt;%=</span> form.submit <span class="st">'Search'</span> <span class="kw">%&gt;</span>
+<span class="kw">&lt;%</span> <span class="kw">end</span> <span class="kw">%&gt;</span></code></pre>
+</section>
+<section class="level3" id="testing-2">
+<h3><a href="#testing-2">Testing</a></h3>
+<ul>
+<li><a href="#geocoding-with-an-external-service">Geocoding with an External Service</a></li>
+</ul>
+</section>
+</section>
+<section class="level2" id="geocode-browser-requests-on-the-client-side">
+<h2><a href="#geocode-browser-requests-on-the-client-side">Geocode Browser Requests on the Client Side</a></h2>
+<p>In the previous section we referred to the Rails <code>request</code> object to reverse geocode the user's location and pre-populate the search field with the user's city and state. As an alternative to the server-side approach, we can reverse geocode the user's location using the <a href="http://dev.w3.org/geo/api/spec-source.html">W3C Geolocation</a> and <a href="https://developers.google.com/maps/documentation/geocoding/">Google Geocoding</a> APIs.</p>
+<section class="level3" id="changes-to-the-view-1">
+<h3><a href="#changes-to-the-view-1">Changes to the View</a></h3>
+<p>In the view, we add a function which calls <code>getLocation()</code> on an instance of <code>ExampleApp.CurrentLocation</code> if the search field's placeholder attribute is blank. We pass the function a callback which sets the placeholder attribute to the current city and state:</p>
+<pre class="sourceCode rhtml"><code class="sourceCode rhtml"># app/views/locations/index.html.erb
+$(function() {
+  if (_.isEmpty($('#search_value').attr('placeholder'))) {
+    var currentLocation = new ExampleApp.CurrentLocation();
+    currentLocation.getLocation(function(location) {
+      $('#search_value').attr('placeholder', location);
+    })
+  }
+});</code></pre>
+<p>Next, we build out our <code>CurrentLocation</code> class. When a new <code>CurrentLocation</code> is instantiated, a call is made to the <a href="http://dev.w3.org/geo/api/spec-source.html">W3C Geolocation API</a>. The API function <code>navigator.geolocation.getCurrentPosition()</code> requires a success callback and a failure callback; in this implementation, the success callback is a function that reverse geocodes the geographic coordinates returned. If either of the two external requests is unsuccessful, the <code>getLocation()</code> callback is executed using <code>CurrentLocation.DEFAULT_LOCATION</code>:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># app/assets/javascripts/current_location.coffee</span>
+<span class="kw">class</span> <span class="dt">@ExampleApp.CurrentLocation</span>
+  <span class="dt">@DEFAULT_LOCATION</span> <span class="kw">=</span> <span class="st">'Boston, MA'</span>
+
+  <span class="kw">constructor:</span> <span class="fu">(deferredResolution) -&gt;</span>
+    <span class="dt">@deferredResolution</span> <span class="kw">=</span> deferredResolution <span class="kw">||</span> <span class="fu">(defer) =&gt;</span>
+      navigator<span class="kw">.</span>geolocation<span class="kw">.</span>getCurrentPosition<span class="kw">(</span>
+        <span class="dt">@_reverseGeocodeLocation</span><span class="kw">(</span>defer<span class="kw">),</span> defer<span class="kw">.</span>reject
+      <span class="kw">)</span>
+
+  getLocation<span class="kw">:</span> <span class="fu">(callback) =&gt;</span>
+    successCallback <span class="kw">=</span> <span class="fu">(value) -&gt;</span> callback<span class="kw">(</span>value<span class="kw">)</span>
+    failureCallback <span class="kw">=</span> <span class="fu">(value) -&gt;</span> callback<span class="kw">(</span>ExampleApp<span class="kw">.</span>CurrentLocation<span class="kw">.</span>DEFAULT_LOCATION<span class="kw">)</span>
+
+    $<span class="kw">.</span>Deferred<span class="kw">(</span><span class="dt">@deferredResolution</span><span class="kw">).then(</span>successCallback<span class="kw">,</span> failureCallback<span class="kw">)</span>
+
+  _reverseGeocodeLocation<span class="kw">:</span> <span class="fu">(deferred) =&gt;</span>
+    <span class="fu">(geoposition) =&gt;</span>
+      reverseGeocoder <span class="kw">=</span> <span class="kw">new</span> <span class="dt">ExampleApp.ReverseGeocoder</span><span class="kw">(</span>
+        geoposition<span class="kw">.</span>coords<span class="kw">.</span>latitude<span class="kw">,</span>
+        geoposition<span class="kw">.</span>coords<span class="kw">.</span>longitude
+      <span class="kw">)</span>
+      reverseGeocoder<span class="kw">.</span>location<span class="kw">(</span>deferred<span class="kw">)</span></code></pre>
+<p>The last step is to create the <code>ReverseGeocoder</code> to handle interactions with the external geocoding service:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># app/assets/javascripts/reverse_geocoder.coffee</span>
+<span class="kw">class</span> <span class="dt">@ExampleApp.ReverseGeocoder</span>
+  <span class="kw">constructor:</span> <span class="fu">(latitude, longitude) -&gt;</span>
+    <span class="dt">@latLng</span> <span class="kw">=</span> <span class="kw">new</span> <span class="dt">google.maps.LatLng</span><span class="kw">(</span>latitude<span class="kw">,</span> longitude<span class="kw">)</span>
+    <span class="dt">@geocoder</span> <span class="kw">=</span> <span class="kw">new</span> <span class="dt">google.maps.Geocoder</span>
+
+  location<span class="kw">:</span> <span class="fu">(deferred) -&gt;</span>
+    <span class="dt">@geocoder</span><span class="kw">.</span>geocode <span class="kw">{</span> latLng<span class="kw">:</span> <span class="dt">@latLng</span> <span class="kw">},</span> <span class="fu">(response, status) =&gt;</span>
+      <span class="kw">if</span> status <span class="kw">is</span> <span class="st">'OK'</span>
+        deferred<span class="kw">.</span>resolve<span class="kw">(</span><span class="dt">@_locationFromResponse</span><span class="kw">(</span>response<span class="kw">[</span><span class="dv">0</span><span class="kw">]))</span>
+      <span class="kw">else</span>
+        deferred<span class="kw">.</span>reject<span class="kw">()</span>
+
+  _locationFromResponse<span class="kw">:</span> <span class="fu">(result) -&gt;</span>
+    city <span class="kw">=</span> result<span class="kw">.</span>address_components<span class="kw">[</span><span class="dv">2</span><span class="kw">].</span>long_name
+    state <span class="kw">=</span> result<span class="kw">.</span>address_components<span class="kw">[</span><span class="dv">4</span><span class="kw">].</span>short_name
+    <span class="st">&quot;</span><span class="ch">#{</span>city<span class="ch">}</span><span class="st">, </span><span class="ch">#{</span>state<span class="ch">}</span><span class="st">&quot;</span></code></pre>
+</section>
+<section class="level3" id="testing-3">
+<h3><a href="#testing-3">Testing</a></h3>
+<ul>
+<li><a href="#coffeescript-unit-tests">CoffeeScript Unit Tests</a></li>
+</ul>
+<p></p>
+</section>
+</section>
+<section class="level2" id="introduction-2">
+<h2><a href="#introduction-2">Introduction</a></h2>
+<p>As your application increases in complexity, you may see a decrease in performance. Broadly speaking, the performance of the geocoding aspects of your application can be improved in two ways: limiting the number of external requests and making database queries faster.</p>
+</section>
+<section class="level2" id="cache-results-from-external-requests">
+<h2><a href="#cache-results-from-external-requests">Cache Results from External Requests</a></h2>
+<p>The <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem provides support for caching responses from external geocoding services by URL. When your application attempts to geocode a location that has already been geocoded, the gem will return the cached response for the request URL.</p>
+<p>Start by defining a class to encapsulate the cache. In this example, we're using Memcache (because it works immediately with <code>Rails.cache</code>), but Redis is also supported. <a href="https://github.com/alexreisner/geocoder">Geocoder</a> requires that the cache object implement the following four methods:</p>
+<ol type="1">
+<li><code>CacheClassName#[](key)</code></li>
+<li><code>CacheClassName#[]=(key, value)</code></li>
+<li><code>CacheClassName#del(key)</code></li>
+<li><code>CacheClassName#keys</code></li>
+</ol>
+<p>The first three methods are invoked when setting, retrieving and deleting key-value pairs. The last method, <code>CacheClassName#keys</code>, is invoked only when clearing out the cache; in this implementation, it returns an empty array:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/geocoder_cache.rb</span>
+<span class="kw">class</span> <span class="dt">GeocoderCache</span>
+  <span class="dt">CACHE_KEY</span> = <span class="st">'geocoder_cache'</span>
+
+  <span class="kw">def</span> initialize(store = <span class="dt">Rails</span>.cache)
+    <span class="ot">@store</span> = store
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> []=(key, value)
+    <span class="kw">if</span> value.nil?
+      del key
+    <span class="kw">else</span>
+      write_to_store key, value
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> [](key)
+    read_from_store key
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> keys
+    []
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> del(key)
+    store.delete full_key(key)
+  <span class="kw">end</span>
+
+  <span class="kw">private</span>
+
+  <span class="kw">def</span> full_key(key)
+    [<span class="dt">CACHE_KEY</span>, key].join(<span class="st">' '</span>).parameterize
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> read_from_store(key)
+    store.read full_key(key)
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> store
+    <span class="ot">@store</span>
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> write_to_store(key, value)
+    store.write full_key(key), value
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>Next, configure the cache store in an initializer:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># config/initializers/geocoder.rb</span>
+<span class="dt">Geocoder</span>.configure(cache: <span class="dt">GeocoderCache</span>.new)</code></pre>
+<p>Finally, ensure that you configure the <code>cache_store</code> setting within your Rails application correctly in your test environment:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># config/environments/test.rb</span>
+config.cache_store = <span class="st">:null_store</span></code></pre>
+<p>This disallows cached values within your test environment, which means you can be confident that any tests you write don't rely inadvertently on state from other tests.</p>
+<section class="level3" id="testing-4">
+<h3><a href="#testing-4">Testing</a></h3>
+<ul>
+<li><a href="#testing-geocodercache">Testing <code>GeocoderCache</code></a></li>
+</ul>
+</section>
+</section>
+<section class="level2" id="geocode-only-when-necessary">
+<h2><a href="#geocode-only-when-necessary">Geocode Only When Necessary</a></h2>
+<p>Currently we're geocoding <code>Location</code> objects in an <code>after_validation</code> callback. This approach is less than ideal because it makes our application more likely to hit the daily rate limit of the external geocoding service. In addition, we're slowing down our application with unnecessary external requests: Geocoding with Google takes an average of 75ms. An easy way to improve improve application performance is to geocode only when the address changes.</p>
+<section class="level3" id="changes-to-the-model-2">
+<h3><a href="#changes-to-the-model-2">Changes to the Model</a></h3>
+<p>To ensure we only geocode when the address changes, we build out <code>#geocoding_necessary?</code> and define the appropriate behavior where <code>set_coordinates</code> only runs when <code>#geocoding_necessary?</code> returns <code>true</code>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/location.rb</span>
+<span class="kw">class</span> <span class="dt">Location</span> &lt; <span class="dt">ActiveRecord</span>::<span class="dt">Base</span>
+  <span class="dt">ADDRESS_FIELDS</span> =<span class="ot"> %w(</span><span class="st">street_line_1 street_line_2</span>
+<span class="st">    city state postal_code country_code</span><span class="ot">)</span>.freeze
+
+  class_attribute <span class="st">:geocoding_service</span>
+  <span class="dv">self</span>.geocoding_service = <span class="dt">Geocoder</span>
+
+  validates <span class="st">:store_number</span>, uniqueness: <span class="dv">true</span>
+  geocoded_by <span class="st">:address</span>
+
+  after_validation <span class="st">:set_coordinates</span>, <span class="kw">if</span>: <span class="st">:geocoding_necessary?</span>
+
+  <span class="kw">def</span> <span class="dv">self</span>.search_near(term)
+    coordinates = geocoding_service.coordinates(term)
+    near(coordinates)
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> address
+    address_field_values.compact.join <span class="st">', '</span>
+  <span class="kw">end</span>
+
+  <span class="kw">private</span>
+
+  <span class="kw">def</span> address_field_values
+    <span class="dt">ADDRESS_FIELDS</span>.map { |field| send field }
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> address_changed?
+    (changed &amp; <span class="dt">ADDRESS_FIELDS</span>).any?
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> geocoding_necessary?
+    <span class="kw">if</span> new_record?
+      missing_coordinates?
+    <span class="kw">else</span>
+      address_changed?
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> missing_coordinates?
+    latitude.blank? || longitude.blank?
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> set_coordinates
+    <span class="dv">self</span>.latitude, <span class="dv">self</span>.longitude = geocoding_service.coordinates(address)
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+</section>
+<section class="level3" id="testing-5">
+<h3><a href="#testing-5">Testing</a></h3>
+<ul>
+<li><a href="#testing-objects-are-geocoded-only-when-necessary">Testing Objects are Geocoded Only When Necessary</a></li>
+</ul>
+</section>
+</section>
+<section class="level2" id="speed-up-proximity-queries-with-postgis">
+<h2><a href="#speed-up-proximity-queries-with-postgis">Speed Up Proximity Queries with PostGIS</a></h2>
+<section class="level3" id="what-is-postgis">
+<h3><a href="#what-is-postgis">What is PostGIS?</a></h3>
+<p><a href="http://postgis.net">PostGIS</a> is a powerful spatial database extender for PostgreSQL. Like PostgreSQL, it is free and open-source. Adding PostGIS to your database enables persistence of geographic data and makes it possible to retrieve the data with spatial queries using PostGIS functions. While an exhaustive discussion of PostGIS is outside the scope of this book, its utility as a tool for speeding up database queries makes it relevant to include some notes here on its use.</p>
+</section>
+<section class="level3" id="why-is-postgis-faster">
+<h3><a href="#why-is-postgis-faster">Why is PostGIS Faster?</a></h3>
+<p>PostGIS allows geocoded data to be persisted as points on a plane. Proximity queries using PostGIS are less expensive than non-spatial queries because locations, represented as geographic points, can be compared using the Pythagorean theorem. The <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem's <code>.near</code> method, by contrast, compares geographic coordinates on the fly, using the <a href="http://en.wikipedia.org/wiki/Haversine_formula">haversine formula</a>.</p>
+</section>
+<section class="level3" id="how-do-i-use-postgis">
+<h3><a href="#how-do-i-use-postgis">How Do I Use PostGIS?</a></h3>
+<p>While there are currently few comprehensive and up-to-date resources for using PostGIS with Rails applications in multiple environments, the challenges of installing and configuring PostGIS are worth tackling if significant improvements in application performance may be gained.</p>
+<p>Using PostGIS with Rails requires installing the <a href="https://github.com/dazuma/activerecord-postgis-adapter">ActiveRecord PostGIS Adapter</a> and <a href="https://github.com/dazuma/rgeo">RGeo</a> gems. To learn more about PostGIS, consider purchasing a copy of <a href="http://www.manning.com/obe/">PostGIS in Action</a>. For an example of how to configure your Rails application for use with PostGIS, see <a href="#using-postgis-in-your-rails-application">Using PostGIS in Your Rails Application</a>.</p>
+<p></p>
+</section>
+</section>
+<section class="level2" id="testing-a-rails-application-with-geocoded-data">
+<h2><a href="#testing-a-rails-application-with-geocoded-data">Testing a Rails Application with Geocoded Data</a></h2>
+<p>While testing a normal Rails application can be tough, introducing geocoding and determining how and when to test various aspects of it may be downright daunting. Let's break down the various aspects of testing this Rails application as we build out functionality to shed a bit more light on this subject.</p>
+</section>
+<section class="level2" id="acceptance-tests">
+<h2><a href="#acceptance-tests">Acceptance Tests</a></h2>
+<p>The acceptance tests of our app focus on validating core features such as displaying location results and a functioning geospatial search. The entirety of browser interaction is handled through a page object, <code>LocationsOnPage</code>, which exposes methods for interacting with the application and asserting against information rendered:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/support/features/locations_on_page.rb</span>
+<span class="kw">class</span> <span class="dt">LocationsOnPage</span>
+  <span class="dt">ELEMENT_ID_REGEX</span> = <span class="ot">/_(\d+)/</span>
+
+  <span class="kw">include</span> <span class="dt">Capybara</span>::<span class="dt">DSL</span>
+  <span class="kw">include</span> <span class="dt">Rails</span>.application.routes.url_helpers
+
+  <span class="kw">def</span> initialize
+    visit root_path
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> search(value)
+    fill_in <span class="st">'Search by Location'</span>, with: value
+    click_on <span class="st">'Search'</span>
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> suggested_search_value
+    field_labeled(<span class="st">'Search by Location'</span>)[<span class="st">'placeholder'</span>]
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> include?(location)
+    locations.include? location
+  <span class="kw">end</span>
+
+  <span class="kw">private</span>
+
+  <span class="kw">def</span> locations
+    <span class="dt">Location</span>.where(id: location_ids)
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> locations_element
+    find(<span class="st">'.locations'</span>)
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> location_elements
+    locations_element.all(<span class="st">'li'</span>)
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> location_ids
+    location_elements.map { |node| node[<span class="st">'id'</span>][<span class="dt">ELEMENT_ID_REGEX</span>, <span class="dv">1</span>] }
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>Let's look at the very first acceptance test, which simply verifies that locations are rendered correctly when no search is applied:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/features/guest_views_all_locations_spec.rb</span>
+require <span class="st">'spec_helper'</span>
+
+feature <span class="st">'Guest views all locations'</span> <span class="kw">do</span>
+  scenario <span class="st">'each location is displayed with the correct information'</span> <span class="kw">do</span>
+    stub_geocoding_request <span class="st">'12 Winter St., Boston, MA, 02111, US'</span>,
+      <span class="fl">42.35548199999999</span>, -<span class="fl">71.0608386</span>
+    stub_geocoding_request <span class="st">'36 2nd St., San Francisco, CA, 94105, US'</span>,
+      <span class="fl">37.788587</span>, -<span class="fl">122.400958</span>
+
+    boston_location = create(<span class="st">:location</span>, <span class="st">:in_boston</span>)
+    san_francisco_location = create(<span class="st">:location</span>, <span class="st">:in_san_francisco</span>)
+
+    locations = <span class="dt">LocationsOnPage</span>.new
+
+    expect(locations).to <span class="kw">include</span>(boston_location)
+    expect(locations).to <span class="kw">include</span>(san_francisco_location)
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>In this spec, we create two records and ensure both are displayed. This test doesn't actually verify whether any geocoding is taking place and likely falls into the category of a <a href="http://xunitpatterns.com/Smoke%20Test.html">smoke test</a>.</p>
+<p>Next, let's look at the test which ensures that searching works correctly:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/features/guest_searches_by_postal_code_spec.rb</span>
+require <span class="st">'spec_helper'</span>
+
+feature <span class="st">'Guest searches by postal code'</span> <span class="kw">do</span>
+  scenario <span class="st">'only displays locations within the search radius'</span> <span class="kw">do</span>
+    stub_geocoding_request <span class="st">'12 Winter St., Boston, MA, 02111, US'</span>, <span class="st">'02111'</span>,
+      <span class="fl">42.35548199999999</span>, -<span class="fl">71.0608386</span>
+    stub_geocoding_request <span class="st">'36 2nd St., San Francisco, CA, 94105, US'</span>, <span class="st">'94105'</span>,
+      <span class="fl">37.788587</span>, -<span class="fl">122.400958</span>
+
+    boston_location = create(<span class="st">:location</span>, <span class="st">:in_boston</span>)
+    san_francisco_location = create(<span class="st">:location</span>, <span class="st">:in_san_francisco</span>)
+
+    locations = <span class="dt">LocationsOnPage</span>.new
+    locations.search boston_location.postal_code
+
+    expect(locations).to <span class="kw">include</span>(boston_location)
+    expect(locations).not_to <span class="kw">include</span>(san_francisco_location)
+
+    locations.search san_francisco_location.postal_code
+
+    expect(locations).not_to <span class="kw">include</span>(boston_location)
+    expect(locations).to <span class="kw">include</span>(san_francisco_location)
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>This spec creates two locations and asserts searching by the postal code of each only returns the closest location. This ensures we create records, geocoding them correctly, and filter locations given a search term.</p>
+<p>Finally, we verify we're suggesting the correct location (with the placeholder attribute on our <code>&lt;input type=&quot;text&quot;&gt;</code>) based on IP retrieval. Within <code>LocationsController</code>, we already exposed a <code>class_attribute :request_geocoding_gatherer</code>, allowing us to swap out the <code>RequestGeocodingGatherer</code> with a fake object returning a known value (<code>'New York, NY'</code>):</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/features/guest_receives_suggestion_for_search_value_spec.rb</span>
+require <span class="st">'spec_helper'</span>
+
+feature <span class="st">'Guest receives suggestion for search value'</span> <span class="kw">do</span>
+  scenario <span class="st">'only displays locations within the search radius'</span> <span class="kw">do</span>
+    <span class="dt">FakeRequestGeocodingGatherer</span> = <span class="dt">Struct</span>.new(<span class="st">:request</span>) <span class="kw">do</span>
+      <span class="kw">def</span> current_location; <span class="st">'New York, NY'</span>; <span class="kw">end</span>
+    <span class="kw">end</span>
+    <span class="dt">LocationsController</span>.request_geocoding_gatherer = <span class="dt">FakeRequestGeocodingGatherer</span>
+    locations = <span class="dt">LocationsOnPage</span>.new
+
+    expect(locations.suggested_search_value).to eq <span class="st">'New York, NY'</span>
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>As with any class attribute, we must reset its value after each test:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/support/request_geocoding_gatherer.rb</span>
+<span class="dt">RSpec</span>.configure <span class="kw">do</span> |config|
+  config.around <span class="kw">do</span> |example|
+    cached_request_geocoding_gatherer = <span class="dt">LocationsController</span>.request_geocoding_gatherer
+    <span class="dt">LocationsController</span>.request_geocoding_gatherer = <span class="dt">NullRequestGeocodingGatherer</span>
+
+    example.run
+
+    <span class="dt">LocationsController</span>.request_geocoding_gatherer = cached_request_geocoding_gatherer
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+</section>
+<section class="level2" id="unit-tests">
+<h2><a href="#unit-tests">Unit Tests</a></h2>
+<p>In this section, we'll review the techniques we employ in our unit tests throughout the stages of application development.</p>
+<p>Writing unit tests for our models is initially straightforward. Let's start with <code>PostalCode</code>, the object responsible for calculating coordinates given a postal code:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/models/postal_code_spec.rb</span>
+describe <span class="dt">PostalCode</span>, <span class="st">'#for_geocoding'</span> <span class="kw">do</span>
+  it <span class="st">'returns a five-digit code'</span> <span class="kw">do</span>
+    expect(postal_code_for_geocoding(<span class="st">'123456'</span>)).to eq <span class="st">'12345'</span>
+  <span class="kw">end</span>
+
+  it <span class="st">'pads results'</span> <span class="kw">do</span>
+    expect(postal_code_for_geocoding(<span class="st">'1234'</span>)).to eq <span class="st">'01234'</span>
+  <span class="kw">end</span>
+
+  it <span class="st">'handles integer values'</span> <span class="kw">do</span>
+    expect(postal_code_for_geocoding(<span class="dv">1234</span>)).to eq <span class="st">'01234'</span>
+  <span class="kw">end</span>
+
+  it <span class="st">'handles ZIP+4 codes'</span> <span class="kw">do</span>
+    expect(postal_code_for_geocoding(<span class="st">'12345-6789'</span>)).to eq <span class="st">'12345'</span>
+  <span class="kw">end</span>
+
+  it <span class="st">'returns nil with a nil value'</span> <span class="kw">do</span>
+    expect(postal_code_for_geocoding(<span class="dv">nil</span>)).to be_nil
+  <span class="kw">end</span>
+
+  it <span class="st">'returns nil with a blank value'</span> <span class="kw">do</span>
+    expect(postal_code_for_geocoding(<span class="st">''</span>)).to be_nil
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> postal_code_for_geocoding(value)
+    <span class="dt">PostalCode</span>.new(value).for_geocoding
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>These tests cover the base cases for various types of input: <code>nil</code>, <code>''</code>, integers, strings without padding and strings longer than five characters:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/postal_code.rb</span>
+<span class="kw">def</span> for_geocoding
+  <span class="kw">if</span> <span class="ot">@value</span>.present?
+    (<span class="st">'%05d'</span> % <span class="ot">@value</span>.to_s.gsub(<span class="ot">/\A(\d+)(-\d+)?\z/</span>, <span class="st">'\1'</span>).to_i).first(<span class="dv">5</span>)
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>Next up is ensuring that <code>PostalCode#coordinates</code> works as expected:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/models/postal_code_spec.rb</span>
+describe <span class="dt">PostalCode</span>, <span class="st">'#coordinates'</span> <span class="kw">do</span>
+  it <span class="st">'uses the geocoding value to calculate'</span> <span class="kw">do</span>
+    expect(<span class="dt">PostalCode</span>.new(<span class="st">'02115'</span>).coordinates).to eq [
+      <span class="st">'02115'</span>.to_lat.to_f,
+      <span class="st">'02115'</span>.to_lon.to_f
+    ]
+  <span class="kw">end</span>
+
+  it <span class="st">'handles postal codes which cannot be converted to coordinates'</span> <span class="kw">do</span>
+    expect(<span class="dt">PostalCode</span>.new(<span class="st">'12000'</span>).coordinates).to eq []
+  <span class="kw">end</span>
+
+  it <span class="st">'handles nil'</span> <span class="kw">do</span>
+    expect(<span class="dt">PostalCode</span>.new(<span class="dv">nil</span>).coordinates).to eq []
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/postal_code.rb</span>
+<span class="kw">def</span> coordinates
+  <span class="kw">if</span> for_geocoding &amp;&amp; latlon = for_geocoding.to_latlon
+    latlon.split(<span class="ot">/\,/</span>).map(&amp;<span class="st">:strip</span>).map(&amp;<span class="st">:to_f</span>)
+  <span class="kw">else</span>
+    []
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<section class="level3" id="geocoding-with-an-external-service">
+<h3><a href="#geocoding-with-an-external-service">Geocoding with an External Service</a></h3>
+<p>The next step is introducing geocoding with an external service, which we do with the <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem. <a href="https://github.com/alexreisner/geocoder">Geocoder</a> provides support for stubbing geocoding requests with its <code>:test</code> lookup.</p>
+<p>First, we write our test to determine what to stub:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/models/location_spec.rb</span>
+describe <span class="dt">Location</span>, <span class="st">'#valid?'</span> <span class="kw">do</span>
+  it <span class="st">'geocodes with Geocoder'</span> <span class="kw">do</span>
+    location = <span class="dt">Location</span>.new(street_line_1: <span class="st">'Undefined address'</span>)
+    location.valid?
+
+    expect(location.latitude).to eq geocoder_stub(<span class="st">'nonexistent'</span>).latitude
+    expect(location.longitude).to eq geocoder_stub(<span class="st">'nonexistent'</span>).longitude
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>Second, we define <code>GeocoderStub</code> to make the <a href="https://github.com/alexreisner/geocoder">geocoder</a> test stubs easier to interact with:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/support/geocoder_stub.rb</span>
+<span class="kw">module</span> <span class="dt">GeocoderStub</span>
+  <span class="kw">def</span> geocoder_stub(key)
+    result_hash = <span class="dt">Geocoder</span>::<span class="dt">Lookup</span>::<span class="dt">Test</span>.read_stub(key).first
+    <span class="dt">OpenStruct</span>.new(result_hash)
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>Third, we add a stub to a <code>geocoder.rb</code> support file:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/support/geocoder.rb</span>
+<span class="dt">Geocoder</span>.configure(<span class="st">:lookup</span> =&gt; <span class="st">:test</span>)
+
+<span class="dt">Geocoder</span>::<span class="dt">Lookup</span>::<span class="dt">Test</span>.set_default_stub [{
+  latitude: <span class="dv">12</span>,
+  longitude: <span class="dv">34</span>,
+}]</code></pre>
+<p>Finally, we include <code>GeocoderStub</code> in our spec helper:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/spec_helper.rb</span>
+<span class="dt">RSpec</span>.configure <span class="kw">do</span> |config|
+  config.use_transactional_fixtures = <span class="dv">false</span>
+  config.infer_base_class_for_anonymous_controllers = <span class="dv">false</span>
+  config.order = <span class="st">&quot;random&quot;</span>
+  config.include <span class="dt">FactoryGirl</span>::<span class="dt">Syntax</span>::<span class="dt">Methods</span>
+  config.include <span class="dt">GeocoderStub</span>
+<span class="kw">end</span></code></pre>
+<p>When we write more complex tests, we'll need to add a stub that's specific to a location. For example:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/support/geocoder.rb</span>
+<span class="dt">Geocoder</span>::<span class="dt">Lookup</span>::<span class="dt">Test</span>.add_stub <span class="st">'12 Winter St., Boston, MA, 02111, US'</span>, [{
+  <span class="st">'latitude'</span> =&gt; <span class="fl">42.35548199999999</span>,
+  <span class="st">'longitude'</span> =&gt; -<span class="fl">71.0608386</span>,
+}]</code></pre>
+<p>Similarly, it's possible to stub geocoding based on IP addresses:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/support/geocoder.rb</span>
+<span class="dt">Geocoder</span>.configure(<span class="st">:lookup</span> =&gt; <span class="st">:test</span>, ip_lookup: <span class="st">:test</span>)</code></pre>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/support/geocoder.rb</span>
+<span class="dt">Geocoder</span>::<span class="dt">Lookup</span>::<span class="dt">Test</span>.add_stub <span class="st">'555.555.1.1'</span>, [{
+  <span class="st">'ip'</span> =&gt; <span class="st">'555.555.1.1'</span>,
+  <span class="st">'city'</span> =&gt; <span class="st">'New York'</span>,
+  <span class="st">'state'</span> =&gt; <span class="st">'NY'</span>,
+}]</code></pre>
+</section>
+<section class="level3" id="testing-geocodercache">
+<h3><a href="#testing-geocodercache">Testing <code>GeocoderCache</code></a></h3>
+<p>Testing <code>GeocoderCache</code> requires that we stub <code>Rails.cache</code> to return a cache object:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/models/geocoder_cache_spec.rb</span>
+describe <span class="dt">GeocoderCache</span> <span class="kw">do</span>
+  before <span class="kw">do</span>
+    <span class="dt">Rails</span>.stub(<span class="st">:cache</span>).and_return <span class="dt">ActiveSupport</span>::<span class="dt">Cache</span>.lookup_store(<span class="st">:memory_store</span>)
+  <span class="kw">end</span></code></pre>
+<p>With <code>Rails.cache</code> stubbed, we can test assigning, retrieving and deleting cache keys:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/models/geocoder_cache_spec.rb</span>
+it <span class="st">'allows for cache assignment and retrieval'</span> <span class="kw">do</span>
+  subject[<span class="st">'Boston, MA'</span>] = [<span class="fl">22.0</span>, <span class="fl">22.0</span>]
+  expect(subject[<span class="st">'Boston, MA'</span>]).to eq [<span class="fl">22.0</span>, <span class="fl">22.0</span>]
+
+  subject[<span class="st">'New York, NY'</span>] = [-<span class="fl">10.0</span>, -<span class="fl">5.0</span>]
+  expect(subject[<span class="st">'New York, NY'</span>]).to eq [-<span class="fl">10.0</span>, -<span class="fl">5.0</span>]
+<span class="kw">end</span>
+
+it <span class="st">'allows keys to be deleted'</span> <span class="kw">do</span>
+  subject[<span class="st">'Boston, MA'</span>] = [<span class="fl">22.0</span>, <span class="fl">22.0</span>]
+  subject.del(<span class="st">'Boston, MA'</span>)
+  expect(subject[<span class="st">'Boston, MA'</span>]).to be_nil
+<span class="kw">end</span></code></pre>
+</section>
+<section class="level3" id="testing-to-ensure-objects-are-geocoded-only-when-necessary">
+<h3><a href="#testing-to-ensure-objects-are-geocoded-only-when-necessary">Testing to Ensure Objects are Geocoded Only When Necessary</a></h3>
+<p>Writing tests to ensure our objects are only geocoded when the address is updated indicates that we need to do some refactoring. In our unit test for <code>Location</code>, we want to be able to spy on the object receiving the method handling geocoding. Currently, the object which receives <code>geocode</code>--the <code>Location</code> instance--is the <a href="http://xunitpatterns.com/SUT.html">system under test</a>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/location.rb</span>
+<span class="kw">class</span> <span class="dt">Location</span> &lt; <span class="dt">ActiveRecord</span>::<span class="dt">Base</span>
+  validates <span class="st">:store_number</span>, uniqueness: <span class="dv">true</span>
+  geocoded_by <span class="st">:address</span>
+
+  after_validation <span class="st">:geocode</span></code></pre>
+<p>We'll start by writing a test to help drive our approach to refactoring. In this test, we rely on an assignable class attribute, <code>geocoding_service</code>, which will handle the entirety of the geocoding. Assigning an object to this attribute allows us to inject the dependency in various situations; in this case, we'll inject a <code>double</code> within the spec to grant us more control over the resulting <code>coordinates</code>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/models/location_spec.rb</span>
+it <span class="st">'does not geocode when address does not change'</span> <span class="kw">do</span>
+  location = create(<span class="st">:location</span>, <span class="st">:in_boston</span>)
+  <span class="dt">Location</span>.geocoding_service = double(<span class="st">'geocoding service'</span>, coordinates: <span class="dv">nil</span>)
+
+  location.valid?
+
+  expect(<span class="dt">Location</span>.geocoding_service).not_to have_received(<span class="st">:coordinates</span>)
+<span class="kw">end</span></code></pre>
+<p>To make the test pass, we define a <code>geocoding_service</code> class attribute on <code>Location</code>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/location.rb</span>
+<span class="kw">class</span> <span class="dt">Location</span> &lt; <span class="dt">ActiveRecord</span>::<span class="dt">Base</span>
+  <span class="dt">ADDRESS_FIELDS</span> =<span class="ot"> %w(</span><span class="st">street_line_1 street_line_2</span>
+<span class="st">    city state postal_code country_code</span><span class="ot">)</span>.freeze
+
+  class_attribute <span class="st">:geocoding_service</span>
+  <span class="dv">self</span>.geocoding_service = <span class="dt">Geocoder</span></code></pre>
+<p>We also change our <code>after_validation</code> to <code>:set_coordinates</code> so we can call <code>coordinates</code> (which <code>Geocoder</code> already defines) on <code>geocoding_service</code>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/location.rb</span>
+after_validation <span class="st">:set_coordinates</span>, <span class="kw">if</span>: <span class="st">:geocoding_necessary?</span></code></pre>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/location.rb</span>
+<span class="kw">def</span> set_coordinates
+  <span class="dv">self</span>.latitude, <span class="dv">self</span>.longitude = geocoding_service.coordinates(address)
+<span class="kw">end</span></code></pre>
+<p>Finally, we reset the <code>geocoding_service</code> class attribute after each test, just as we did for <code>LocationsController.request_geocoding_gatherer</code>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/support/geocoding_service.rb</span>
+<span class="dt">RSpec</span>.configure <span class="kw">do</span> |config|
+  config.around <span class="kw">do</span> |example|
+    cached_geocoding_service = <span class="dt">Location</span>.geocoding_service
+    example.run
+    <span class="dt">Location</span>.geocoding_service = cached_geocoding_service
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+</section>
+<section class="level3" id="decoupling-our-application-from-the-geocoding-service-entirely">
+<h3><a href="#decoupling-our-application-from-the-geocoding-service-entirely">Decoupling Our Application From the Geocoding Service Entirely</a></h3>
+<p>With <code>Location</code> allowing any object be assigned to the <code>geocoding_service</code> class attribute, we're able to do a significantly larger refactor, wherein we inject a <code>FakeGeocoder</code> for every test performing geocoding. There are many benefits to this approach:</p>
+<ol type="1">
+<li>It allows us to remove <code>spec/support/geocoder.rb</code>: All Geocoder <code>add_stub</code>s effectively introduce <a href="http://xunitpatterns.com/Obscure%20Test.html#Mystery%20Guest">mystery guests</a>.</li>
+<li>It allows us to be explicit about how each geocoding request works per test: We can now choose exactly how the geocoder used by our code responds.</li>
+<li>It provides a clear seam because we never refer to <code>Geocoder</code> explicitly: We can swap out <code>Geocoder</code> entirely or introduce an adapter to another geocoding library with very little work.</li>
+</ol>
+<p>We start by removing <code>geocoder.rb</code> and rewriting our test to use a helper we define, <code>stub_geocoding_request</code>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/models/location_spec.rb</span>
+context <span class="st">'when updating location address'</span> <span class="kw">do</span>
+  it <span class="st">'geocodes location'</span> <span class="kw">do</span>
+    stub_geocoding_request <span class="st">'45 Winter St., Boston, MA, 02111, US'</span>, <span class="dv">42</span>, -<span class="dv">75</span>
+    stub_geocoding_request <span class="st">'12 Winter St., Boston, MA, 02111, US'</span>, <span class="dv">45</span>, -<span class="dv">70</span>
+
+    location = create(<span class="st">:location</span>, <span class="st">:in_boston</span>, street_line_1: <span class="st">'45 Winter St.'</span>)
+    location.street_line_1 = <span class="st">'12 Winter St.'</span>
+    location.valid?
+
+    expect(location.latitude).to eq <span class="dv">45</span>
+    expect(location.longitude).to eq -<span class="dv">70</span>
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>Next, we define <code>GeocodingRequestStub</code> (the module which contains the new <code>stub_geocoding_request</code> method) and include it in our spec helper:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/support/geocoding_request_stub.rb</span>
+<span class="kw">module</span> <span class="dt">GeocodingRequestStub</span>
+  <span class="kw">def</span> stub_geocoding_request(*strings, latitude, longitude)
+    strings.each <span class="kw">do</span> |string|
+      <span class="dt">FakeGeocoder</span>[string] = [latitude, longitude]
+    <span class="kw">end</span>
+    <span class="dt">Location</span>.geocoding_service = <span class="dt">FakeGeocoder</span>
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/spec_helper.rb</span>
+<span class="dt">RSpec</span>.configure <span class="kw">do</span> |config|
+  config.include <span class="dt">GeocodingRequestStub</span>
+<span class="kw">end</span></code></pre>
+<p><code>stub_geocoding_request</code> allows for mapping any number of strings (values to be geocoded) to a specific coordinate. Iterating over the list of <code>strings</code>, we use each string as a key within our new <code>FakeGeocoder</code>. <code>FakeGeocoder</code> acts as a dictionary object, mapping keys (strings to geocode) to values (a specific coordinate).</p>
+<p>We test-drive development of <code>FakeGeocoder</code>, ensuring it allows for assignment (<code>FakeGeocoder.[]=(key, value)</code>) and retrieval exactly as we're using it throughout the existing system (<code>FakeGeocoder.coordinates(key)</code>). To safeguard against typos on our end, any attempt to geocode an undefined value raises an exception:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/lib/fake_geocoder_spec.rb</span>
+require <span class="st">'spec_helper'</span>
+
+describe <span class="dt">FakeGeocoder</span> <span class="kw">do</span>
+  it <span class="st">'allows for setting and retrieving geocoded values'</span> <span class="kw">do</span>
+    <span class="dt">FakeGeocoder</span>[<span class="st">'search string'</span>] = [<span class="dv">12</span>, <span class="dv">34</span>]
+    expect(<span class="dt">FakeGeocoder</span>.coordinates(<span class="st">'search string'</span>)).to eq [<span class="dv">12</span>, <span class="dv">34</span>]
+  <span class="kw">end</span>
+
+  it <span class="st">'raises when trying to retrieve a nonexistent value'</span> <span class="kw">do</span>
+    expect <span class="kw">do</span>
+      <span class="dt">FakeGeocoder</span>.coordinates(<span class="st">'search string'</span>)
+    <span class="kw">end</span>.to raise_error <span class="ot">/search string/</span>
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>The implementation of <code>FakeGeocoder</code> is straightforward; the only method we don't test directly is <code>FakeGeocoder.clear</code>, which needs to be run before each test because the data is stored at a class level:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># lib/fake_geocoder.rb</span>
+<span class="kw">class</span> <span class="dt">FakeGeocoder</span>
+  <span class="kw">def</span> <span class="dv">self</span>.[]=(key, value)
+    <span class="ot">@values</span>[key] = value
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> <span class="dv">self</span>.coordinates(key)
+    <span class="ot">@values</span>.fetch(key)
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> <span class="dv">self</span>.clear
+    <span class="ot">@values</span> = {}
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/support/geocoding_request_stub.rb</span>
+<span class="dt">RSpec</span>.configure <span class="kw">do</span> |config|
+  config.before <span class="kw">do</span>
+    <span class="dt">FakeGeocoder</span>.clear
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>We make one additional change to <code>Location</code>: We define our own method, <code>search_near</code>, which uses the <code>geocoding_service</code> to calculate coordinates and pass them to the <code>near</code> method defined by the <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/models/location.rb</span>
+<span class="kw">def</span> <span class="dv">self</span>.search_near(term)
+  coordinates = geocoding_service.coordinates(term)
+  near(coordinates)
+<span class="kw">end</span></code></pre>
+<p>When provided a coordinate, the <code>near</code> scope provided by the <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem does not geocode the value because the work has been done already; this ensures all geocoding logic is managed by <code>Location.geocoding_service</code>.</p>
+<p>Lastly, <code>LocationsController</code> needs to take advantage of our new scope:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># app/controllers/locations_controller.rb</span>
+<span class="kw">def</span> index
+  <span class="ot">@current_location_by_ip</span> = geocoded_request_information.current_location
+  <span class="ot">@locations</span> <span class="kw">= if</span> search_value.present?
+                 <span class="dt">Location</span>.search_near(search_value)
+               <span class="kw">else</span>
+                 <span class="dt">Location</span>.all
+               <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>This decoupling from the <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem is significant; instead of relying on the <a href="https://github.com/alexreisner/geocoder">geocoder</a> gem throughout the application and its stubs in the test suite, we instead rely on a simple interface, <code>coordinates(value)</code> and <code>[]=(key, value)</code>, to handle the entirety of our geocoding needs.</p>
+</section>
+<section class="level3" id="ensuring-no-external-requests-are-made-during-geocoding">
+<h3><a href="#ensuring-no-external-requests-are-made-during-geocoding">Ensuring No External Requests are Made during Geocoding</a></h3>
+<p>With geocoding completely handled by <code>FakeGeocoder</code>, we can add the <a href="https://github.com/bblimke/webmock">WebMock</a> gem to verify the application is making no external requests.</p>
+<p>First, add the gem to the <code>Gemfile</code>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># Gemfile</span>
+group <span class="st">:test</span> <span class="kw">do</span>
+  gem <span class="st">'capybara'</span>, <span class="st">'~&gt; 2.1.0'</span>
+  gem <span class="st">'database_cleaner'</span>, <span class="st">'~&gt; 1.0.1'</span>
+  gem <span class="st">'factory_girl_rails'</span>, <span class="st">'~&gt; 4.1.0'</span>
+  gem <span class="st">'poltergeist'</span>, <span class="st">'~&gt; 1.1'</span>
+  gem <span class="st">'shoulda-matchers'</span>, <span class="st">'~&gt; 2.2.0'</span>
+  gem <span class="st">'webmock'</span>, require: <span class="dv">false</span>
+<span class="kw">end</span></code></pre>
+<p>Next, disable all network interaction with <code>WebMock.disable_net_connect!</code>:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/spec_helper.rb</span>
+<span class="co"># This file is copied to spec/ when you run 'rails generate rspec:install'</span>
+<span class="dt">ENV</span>[<span class="st">&quot;RAILS_ENV&quot;</span>] ||= <span class="st">'test'</span>
+require <span class="dt">File</span>.expand_path(<span class="st">&quot;../../config/environment&quot;</span>, <span class="dv">__FILE__</span>)
+require <span class="st">'rspec/rails'</span>
+require <span class="st">'rspec/autorun'</span>
+
+require <span class="st">'webmock/rspec'</span>
+<span class="dt">WebMock</span>.disable_net_connect!
+
+<span class="dt">Dir</span>[<span class="dt">Rails</span>.root.join(<span class="st">&quot;spec/support/**/*.rb&quot;</span>)].each { |f| require f }</code></pre>
+<p>A green test suite verifies no external geocoding requests are made.</p>
+</section>
+</section>
+<section class="level2" id="coffeescript-unit-tests">
+<h2><a href="#coffeescript-unit-tests">CoffeeScript Unit Tests</a></h2>
+<p>We'll use <a href="https://github.com/jfirebaugh/konacha">Konacha</a> to write unit tests for our CoffeeScript. <a href="https://github.com/jfirebaugh/konacha">Konacha</a> relies on the <a href="http://visionmedia.github.io/mocha/">Mocha test framework</a> and <a href="http://chaijs.com/">Chai assertion library</a> for executing the tests and <a href="https://github.com/jonleighton/poltergeist">Poltergeist</a> to run the tests in-memory within a rake task.</p>
+<p>First, we add <a href="https://github.com/jfirebaugh/konacha">Konacha</a> and <a href="https://github.com/jonleighton/poltergeist">Poltergeist</a> to the Gemfile:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># Gemfile</span>
+group <span class="st">:development</span>, <span class="st">:test</span> <span class="kw">do</span>
+  gem <span class="st">'konacha'</span>
+  gem <span class="st">'rspec-rails'</span>, <span class="st">'~&gt; 2.14.0'</span>
+<span class="kw">end</span>
+
+group <span class="st">:test</span> <span class="kw">do</span>
+  gem <span class="st">'capybara'</span>, <span class="st">'~&gt; 2.1.0'</span>
+  gem <span class="st">'database_cleaner'</span>, <span class="st">'~&gt; 1.0.1'</span>
+  gem <span class="st">'factory_girl_rails'</span>, <span class="st">'~&gt; 4.1.0'</span>
+  gem <span class="st">'poltergeist'</span>, <span class="st">'~&gt; 1.1'</span>
+  gem <span class="st">'shoulda-matchers'</span>, <span class="st">'~&gt; 2.2.0'</span>
+<span class="kw">end</span></code></pre>
+<p>We make sure the <code>rake</code> command runs our JavaScript tests as well as our RSpec tests by adding the <code>konacha:run</code> task to the Rakefile:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># Rakefile</span>
+task default: [<span class="st">'konacha:run'</span>]</code></pre>
+<p>We configure <a href="https://github.com/jfirebaugh/konacha">Konacha</a> to use <a href="https://github.com/jonleighton/poltergeist">Poltergeist</a> in an initializer:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># config/initializers/konacha.rb</span>
+<span class="kw">if</span> <span class="kw">defined?</span>(<span class="dt">Konacha</span>)
+  <span class="dt">Konacha</span>.configure <span class="kw">do</span> |config|
+    require <span class="st">'capybara/poltergeist'</span>
+    config.driver = <span class="st">:poltergeist</span>
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+<p>We create a spec helper and include <code>application.js</code>:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># spec/javascripts/spec_helper.js.coffee</span>
+<span class="co">#= require application</span></code></pre>
+<section class="level3" id="testing-exampleapp.currentlocation">
+<h3><a href="#testing-exampleapp.currentlocation">Testing <code>ExampleApp.CurrentLocation</code></a></h3>
+<p>Our first test ensures that <code>CurrentLocation#getLocation</code> returns a location upon successful resolution:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># spec/javascripts/current_location_spec.coffee</span>
+<span class="co">#= require spec_helper</span>
+
+describe <span class="st">'CurrentLocation#getLocation'</span><span class="kw">,</span> <span class="fu">-&gt;</span>
+  describe <span class="st">'when the deferred object resolves'</span><span class="kw">,</span> <span class="fu">-&gt;</span>
+    it <span class="st">'returns the location'</span><span class="kw">,</span> <span class="fu">-&gt;</span>
+      resolution <span class="kw">=</span> <span class="fu">(defer) -&gt;</span> defer<span class="kw">.</span>resolve<span class="kw">(</span><span class="st">'Boston'</span><span class="kw">)</span>
+
+      currentLocation <span class="kw">=</span> <span class="kw">new</span> <span class="dt">ExampleApp.CurrentLocation</span><span class="kw">(</span>resolution<span class="kw">)</span>
+      currentLocation<span class="kw">.</span>getLocation <span class="fu">(result) -&gt;</span>
+        expect<span class="kw">(</span>result<span class="kw">).</span>to<span class="kw">.</span>equal<span class="kw">(</span><span class="st">'Boston'</span><span class="kw">)</span></code></pre>
+<p>Next, we assert a default location is returned if the resolution is rejected:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># spec/javascripts/current_location_spec.coffee</span>
+describe <span class="st">'when the deferred object is rejected'</span><span class="kw">,</span> <span class="fu">-&gt;</span>
+  it <span class="st">'returns a default location'</span><span class="kw">,</span> <span class="fu">-&gt;</span>
+    resolution <span class="kw">=</span> <span class="fu">(defer) -&gt;</span> defer<span class="kw">.</span>reject<span class="kw">()</span>
+
+    currentLocation <span class="kw">=</span> <span class="kw">new</span> <span class="dt">ExampleApp.CurrentLocation</span><span class="kw">(</span>resolution<span class="kw">)</span>
+    currentLocation<span class="kw">.</span>getLocation <span class="fu">(result) -&gt;</span>
+      expect<span class="kw">(</span>result<span class="kw">).</span>to<span class="kw">.</span>equal<span class="kw">(</span>ExampleApp<span class="kw">.</span>CurrentLocation<span class="kw">.</span>DEFAULT_LOCATION<span class="kw">)</span></code></pre>
+<p>Finally, we ensure that <code>CurrentLocation::DEFAULT_LOCATION</code> returns the expected value:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># spec/javascripts/current_location_spec.coffee</span>
+describe <span class="st">'CurrentLocation::DEFAULT_LOCATION'</span><span class="kw">,</span> <span class="fu">-&gt;</span>
+  it <span class="st">'returns &quot;Boston, MA&quot;'</span><span class="kw">,</span> <span class="fu">-&gt;</span>
+    expect<span class="kw">(</span>ExampleApp<span class="kw">.</span>CurrentLocation<span class="kw">.</span>DEFAULT_LOCATION<span class="kw">).</span>to<span class="kw">.</span>equal <span class="st">'Boston, MA'</span></code></pre>
+</section>
+<section class="level3" id="testing-exampleapp.reversegeocoder">
+<h3><a href="#testing-exampleapp.reversegeocoder">Testing <code>ExampleApp.ReverseGeocoder</code></a></h3>
+<p>To test <code>ReverseGeocoder#location</code>, we'll need to stub requests to the external geocoding service. First, we confirm that the success callback is executed if reverse geocoding is successful:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># spec/javascripts/reverse_geocoder_spec.js.coffee</span>
+<span class="co">#= require spec_helper</span>
+
+describe <span class="st">'ReverseGeocoder#location'</span><span class="kw">,</span> <span class="fu">-&gt;</span>
+  context <span class="st">'when reverse geocoding is successful'</span><span class="kw">,</span> <span class="fu">-&gt;</span>
+    it <span class="st">'reverse geocodes coordinates'</span><span class="kw">,</span> <span class="fu">(done) -&gt;</span>
+      ExampleApp<span class="kw">.</span>TestSupport<span class="kw">.</span>stubSuccessfulGoogleResponse <span class="st">'San Francisco'</span><span class="kw">,</span> <span class="st">'CA'</span>
+
+      buildGeocoderWithCallback success<span class="kw">:</span> <span class="fu">(result) -&gt;</span>
+        expect<span class="kw">(</span>result<span class="kw">).</span>to<span class="kw">.</span>equal <span class="st">'San Francisco, CA'</span>
+        done<span class="kw">()</span></code></pre>
+<p>We define <code>ExampleApp.TestSupport.stubSuccessfulGoogleResponse</code> in our spec helper:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># spec/javascripts/spec_helper.js.coffee</span>
+geocodeResult <span class="kw">=</span> <span class="fu">(city, state) -&gt;</span>
+  <span class="kw">[</span>
+    address_components<span class="kw">:</span> <span class="kw">[</span>
+      <span class="ot">null</span><span class="kw">,</span>
+      <span class="ot">null</span><span class="kw">,</span>
+      long_name<span class="kw">:</span> city<span class="kw">,</span>
+      <span class="ot">null</span><span class="kw">,</span>
+      short_name<span class="kw">:</span> state
+    <span class="kw">]</span>
+  <span class="kw">]</span>
+
+ExampleApp<span class="kw">.</span>TestSupport <span class="kw">=</span>
+  stubSuccessfulGoogleResponse<span class="kw">:</span> <span class="fu">(city, state) -&gt;</span>
+    window<span class="kw">.</span>google <span class="kw">=</span>
+      maps<span class="kw">:</span>
+        LatLng<span class="kw">:</span> <span class="fu">(latitude, longitude) -&gt;</span>
+          <span class="st">'latlng'</span>
+
+        Geocoder<span class="kw">:</span> <span class="fu">-&gt;</span>
+          geocode<span class="kw">:</span> <span class="fu">(latLng, callback) -&gt;</span>
+            callback<span class="kw">(</span>geocodeResult<span class="kw">(</span>city<span class="kw">,</span> state<span class="kw">),</span> <span class="st">'OK'</span><span class="kw">)</span></code></pre>
+<p>We define the <code>buildGeocoderWithCallback</code> helper function which returns a <a href="http://api.jquery.com/jQuery.Deferred/">jQuery Deferred object</a> with the provided callbacks configured correctly:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># spec/javascripts/reverse_geocoder_spec.js.coffee</span>
+buildGeocoderWithCallback <span class="kw">=</span> <span class="fu">(options) -&gt;</span>
+  nullCallback <span class="kw">=</span> <span class="fu">(result) -&gt;</span>
+  successCallback <span class="kw">=</span> options<span class="kw">.</span>success <span class="kw">||</span> nullCallback
+  failureCallback <span class="kw">=</span> options<span class="kw">.</span>failure <span class="kw">||</span> nullCallback
+
+  reverseGeocoder <span class="kw">=</span> <span class="kw">new</span> <span class="dt">ExampleApp.ReverseGeocoder</span><span class="kw">(</span><span class="dv">12</span><span class="kw">,</span> <span class="dv">34</span><span class="kw">)</span>
+
+  $<span class="kw">.</span>Deferred<span class="kw">(</span>
+    <span class="fu">(defer) -&gt;</span> reverseGeocoder<span class="kw">.</span>location<span class="kw">(</span>defer<span class="kw">)</span>
+  <span class="kw">).then(</span>successCallback<span class="kw">,</span> failureCallback<span class="kw">)</span></code></pre>
+<p>With the assertions complete when testing a successful resolution, we can now verify that <code>ReverseGeocoder#location</code> executes the failure callback when reverse geocoding is unsuccessful:</p>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># spec/javascripts/reverse_geocoder_spec.js.coffee</span>
+context <span class="st">'when reverse geocoding is unsuccessful'</span><span class="kw">,</span> <span class="fu">-&gt;</span>
+  it <span class="st">'does not return a value'</span><span class="kw">,</span> <span class="fu">(done) -&gt;</span>
+    ExampleApp<span class="kw">.</span>TestSupport<span class="kw">.</span>stubUnsuccessfulGoogleResponse<span class="kw">()</span>
+
+    buildGeocoderWithCallback failure<span class="kw">:</span> <span class="fu">(result) -&gt;</span>
+      expect<span class="kw">(</span>result<span class="kw">).</span>to<span class="kw">.</span>be<span class="kw">.</span><span class="ot">undefined</span>
+      done<span class="kw">()</span></code></pre>
+<pre class="sourceCode coffee"><code class="sourceCode coffee"><span class="co"># spec/javascripts/spec_helper.js.coffee</span>
+stubUnsuccessfulGoogleResponse<span class="kw">:</span> <span class="fu">-&gt;</span>
+  window<span class="kw">.</span>google <span class="kw">=</span>
+    maps<span class="kw">:</span>
+      LatLng<span class="kw">:</span> <span class="fu">(latitude, longitude) -&gt;</span>
+        <span class="st">'latlng'</span>
+
+      Geocoder<span class="kw">:</span> <span class="fu">-&gt;</span>
+        geocode<span class="kw">:</span> <span class="fu">(latLng, callback) -&gt;</span>
+          callback<span class="kw">(</span><span class="ot">null</span><span class="kw">,</span> <span class="st">'BAD'</span><span class="kw">)</span></code></pre>
+</section>
+<section class="level3" id="validating-reverse-geocoding-in-the-browser">
+<h3><a href="#validating-reverse-geocoding-in-the-browser">Validating Reverse Geocoding in the Browser</a></h3>
+<p>In addition to writing unit tests for <code>CurrentLocation</code> and <code>ReverseGeocoder</code>, it's a good idea to confirm our application is behaving as expected by viewing it in the browser. We use <a href="https://github.com/inconshreveable/ngrok">ngrok</a> to expose our local server to the Internet, allowing our application to access the W3C geolocation and Google Geocoding APIs in the development environment.</p>
+</section>
+<section class="level3" id="testing-the-google-map">
+<h3><a href="#testing-the-google-map">Testing the Google Map</a></h3>
+<p>We avoid testing the Google Map generated by our <code>ExampleApp.Map</code> class primarily because there's no good way to make assertions against the Google Maps JavaScript API without the tests being very brittle. Instead, we verify behavior by viewing the application in a web browser and interacting with the map.</p>
+<p></p>
+</section>
+</section>
+<section class="level2" id="gems">
+<h2><a href="#gems">Gems</a></h2>
+<p>The RubyGem ecosystem is a great place to find existing solutions to geocoding in Rails applications. Here are a few gems which make geocoding easier within an ORM context.</p>
+<section class="level3" id="geocoder">
+<h3><a href="#geocoder">Geocoder</a></h3>
+<p><a href="https://github.com/alexreisner/geocoder">Geocoder</a> is a gem that touts itself as the &quot;Complete Ruby geocoding solution.&quot; It supports geocoding, reverse geocoding and distance queries. It works well with most Ruby ORMs and is under active development.</p>
+</section>
+<section class="level3" id="geokit">
+<h3><a href="#geokit">GeoKit</a></h3>
+<p><a href="https://github.com/imajes/geokit">GeoKit</a> provides a similar feature set to <a href="https://github.com/alexreisner/geocoder">geocoder</a>; however, it is not currently in active development.</p>
+</section>
+<section class="level3" id="graticule">
+<h3><a href="#graticule">Graticule</a></h3>
+<p><a href="https://github.com/collectiveidea/graticule">Graticule</a> allows geocoding with Google, Yahoo and most other geocoding services, and can also be used as a command line tool. It is often used in conjunction with the <a href="https://github.com/collectiveidea/acts_as_geocodable">acts as geocodable</a> gem, which provides hooks into <code>ActiveRecord</code> and allows for distance queries.</p>
+</section>
+<section class="level3" id="area">
+<h3><a href="#area">Area</a></h3>
+<p><a href="https://github.com/jgv/area">Area</a> uses public domain data to convert cities to ZIP codes to coordinates; this allows independence from reliance on an external service.</p>
+</section>
+<section class="level3" id="geoip">
+<h3><a href="#geoip">GeoIP</a></h3>
+<p><a href="https://github.com/cjheath/geoip">GeoIP</a> is a gem which searches the MaxMind GeoIP database for a host or IP address and returns location information (including coordinates). MaxMind provides <a href="http://dev.maxmind.com/geoip/legacy/geolite">free copies of its data</a> as well as a <a href="http://www.maxmind.com/en/geolocation_landing">subscription service</a>.</p>
+</section>
+</section>
+<section class="level2" id="using-postgis-with-rails-and-heroku">
+<h2><a href="#using-postgis-with-rails-and-heroku">Using PostGIS with Rails and Heroku</a></h2>
+<section class="level3" id="using-postgis-in-your-rails-application">
+<h3><a href="#using-postgis-in-your-rails-application">Using PostGIS in Your Rails Application</a></h3>
+<p>First, make sure you have PostgreSQL 9.1 or higher installed. Then install PostGIS 2.0:</p>
+<section class="level4" id="os-x">
+<h4><a href="#os-x">OS X</a></h4>
+<p>The PostGIS website recommends using Postgres.app to install PostGIS. Alternatively, you can use homebrew:</p>
+<pre class="sh"><code>$ brew install postgis</code></pre>
+</section>
+<section class="level4" id="arch-linux">
+<h4><a href="#arch-linux">Arch Linux</a></h4>
+<pre class="sh"><code>$ sudo pacman -S postgis</code></pre>
+<p>You can find more resources for installing PostGIS on the <a href="http://postgis.net/install">PostGIS website</a>.</p>
+<p>After installing PostGIS on your laptop, follow the steps below to configure your Rails application.</p>
+</section>
+<section class="level4" id="create-postgis-extension">
+<h4><a href="#create-postgis-extension">Create PostGIS extension</a></h4>
+<p>If you haven't created your local database yet, you can simply install the <a href="https://github.com/dazuma/activerecord-postgis-adapter">ActiveRecord PostGIS Adapter</a> gem and add <code>postgis_extension: true</code> to your <code>database.yml</code> <a href="#add-activerecord-postgis-adapter-to-gemfile">per the instructions below</a>. ActiveRecord PostGIS Adapter will create the extension when <code>rake db:create</code> is run.</p>
+<p>If you've already created your database, run the following commands to install the PostGIS extension:</p>
+<pre class="sh"><code>$ cd my_application
+$ rails dbconsole
+=# CREATE EXTENSION postgis;
+...</code></pre>
+</section>
+<section class="level4" id="confirm-that-extension-was-created">
+<h4><a href="#confirm-that-extension-was-created">Confirm that extension was created</a></h4>
+<pre class="sh"><code>=# SELECT POSTGIS_FULL_VERSION();
+    NOTICE:  Function postgis_topology_scripts_installed() not found. Is topology
+    support enabled and topology.sql installed?
+    postgis_full_version
+    ------------------------------------------------------------------------------
+    POSTGIS=&quot;2.0.3 r11128&quot; GEOS=&quot;3.3.8-CAPI-1.7.8&quot; PROJ=&quot;Rel. 4.8.0, 6 March 2012&quot;
+    GDAL=&quot;GDAL 1.9.2, released 2012/10/08&quot; LIBXML=&quot;2.7.8&quot; LIBJSON=&quot;UNKNOWN&quot; RASTER
+    (raster lib from &quot;2.0.2 r10789&quot; need upgrade)
+    (1 row)
+
+=#
+=# \quit</code></pre>
+</section>
+<section class="level4" id="add-activerecord-postgis-adapter-to-gemfile">
+<h4><a href="#add-activerecord-postgis-adapter-to-gemfile">Add ActiveRecord PostGIS Adapter to Gemfile</a></h4>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># Gemfile</span>
+gem <span class="st">'activerecord-postgis-adapter'</span></code></pre>
+</section>
+<section class="level4" id="configure-your-local-databases">
+<h4><a href="#configure-your-local-databases">Configure your local databases</a></h4>
+<p>Configure your test and development databases for use with the ActiveRecord PostGIS adapter. Be sure to set the <code>adapter</code> to <code>postgis</code> and <code>postgis_extension</code> to <code>true</code>. Setting <code>postgis_extension</code> to <code>true</code> will ensure that the PostGIS extension is created when the database is created.</p>
+<p>Also note that the test database <code>schema_search_path</code> should be set to <code>public</code>. This ensures that the PostGIS table <code>spatial_ref_sys</code> will be loaded when you prepare your test database. If <code>schema_search_path</code> is set to <code>public, postgis</code>, PostGIS tables <a href="https://github.com/dazuma/activerecord-postgis-adapter/issues/48#issuecomment-13588779">will not be made available</a>:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="co"># config/database.yml</span>
+<span class="fu">development:</span>
+  <span class="fu">&lt;&lt;:</span> <span class="dt">*common</span>
+  <span class="fu">adapter:</span> postgis
+  <span class="fu">encoding:</span> unicode
+  <span class="fu">postgis_extension:</span> true
+  <span class="fu">schema_search_path:</span> public, postgis
+  <span class="fu">pool:</span> 5
+  <span class="fu">database:</span> &lt;database_name&gt;
+
+<span class="fu">test:</span> <span class="dt">&amp;test</span>
+  <span class="fu">&lt;&lt;:</span> <span class="dt">*common</span>
+  <span class="fu">adapter:</span> postgis
+  <span class="fu">postgis_extension:</span> true
+  <span class="fu">schema_search_path:</span> public
+  <span class="fu">encoding:</span> unicode
+  <span class="fu">database:</span> &lt;database_name&gt;</code></pre>
+</section>
+<section class="level4" id="update-your-databasecleaner-strategy">
+<h4><a href="#update-your-databasecleaner-strategy">Update your DatabaseCleaner strategy</a></h4>
+<p>Ensure that your DatabaseCleaner strategy does not remove the PostGIS <code>spatial_ref_sys</code> table before or between tests:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># spec/support/database_cleaner.rb</span>
+<span class="dt">RSpec</span>.configure <span class="kw">do</span> |config|
+  config.before(<span class="st">:suite</span>) <span class="kw">do</span>
+    <span class="dt">DatabaseCleaner</span>.clean_with <span class="st">:truncation</span>, { except:<span class="ot"> %w[</span><span class="st">spatial_ref_sys</span><span class="ot">]</span> }
+  <span class="kw">end</span>
+
+  config.before(<span class="st">:each</span>, js: <span class="dv">true</span>) <span class="kw">do</span>
+    <span class="dt">DatabaseCleaner</span>.strategy = <span class="st">:truncation</span>, { except:<span class="ot"> %w[</span><span class="st">spatial_ref_sys</span><span class="ot">]</span> }
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+</section>
+</section>
+<section class="level3" id="setting-up-continuous-integration-with-postgis">
+<h3><a href="#setting-up-continuous-integration-with-postgis">Setting Up Continuous Integration with PostGIS</a></h3>
+<p>After <a href="#using-postgis-in-your-rails-application">installing PostGIS locally</a> and adding the PostGIS extension to your local databases, you should make sure your continuous integration service is configured for PostGIS.</p>
+<section class="level4" id="configure-database-loading-on-tddium">
+<h4><a href="#configure-database-loading-on-tddium">Configure database loading on Tddium</a></h4>
+<p>Create a worker hook in <code>tddium.yml</code> to ensure that the Tddium database is PostGIS-enabled:</p>
+<pre class="sourceCode yaml"><code class="sourceCode yaml"><span class="co"># config/tddium.yml</span>
+<span class="fu">:tddium:</span>
+  <span class="fu">:postgresql:</span>
+    <span class="fu">:adapter:</span> postgis
+    <span class="fu">:postgis_extension:</span> true
+    <span class="fu">:schema_search_path:</span> public
+  <span class="fu">:hooks:</span>
+    <span class="fu">:worker:</span>
+      createdb $TDDIUM_DB_NAME;
+      psql $TDDIUM_DB_NAME -c 'CREATE EXTENSION postgis;';
+      <span class="fu">bundle exec rake db:</span>migrate</code></pre>
+</section>
+</section>
+<section class="level3" id="setting-up-postgis-for-heroku">
+<h3><a href="#setting-up-postgis-for-heroku">Setting Up PostGIS for Heroku</a></h3>
+<p>Heroku support for PostGIS is currently available <a href="https://devcenter.heroku.com/articles/postgis">in beta</a> for production-tier databases.</p>
+<section class="level4" id="configuring-your-heroku-database">
+<h4><a href="#configuring-your-heroku-database">Configuring your Heroku database</a></h4>
+</section>
+<section class="level4" id="check-to-make-sure-your-primary-database-is-a-production-tier-database">
+<h4><a href="#check-to-make-sure-your-primary-database-is-a-production-tier-database">Check to make sure your primary database is a production-tier database</a></h4>
+<p>Heroku's least expensive production-tier option is the Crane database, <a href="https://www.heroku.com/pricing">priced at $50/month</a>:</p>
+<pre class="sh"><code>$ heroku pg:info --app &lt;your-app&gt;
+
+=== HEROKU_POSTGRESQL_CHARTREUSE_URL (DATABASE_URL)
+Plan:        Crane
+Status:      available
+Data Size:   1.00 GB
+Tables:      2
+PG Version:  9.2.4
+Connections: 5
+Fork/Follow: Available
+Created:     2013-07-01 09:54 UTC
+Maintenance: not required</code></pre>
+<p>If your plan is a starter-tier plan (Dev or Basic), be sure to <a href="https://devcenter.heroku.com/articles/upgrade-heroku-postgres-with-pgbackups">upgrade</a> before setting up the PostGIS add-on.</p>
+</section>
+<section class="level4" id="create-extension">
+<h4><a href="#create-extension">Create extension</a></h4>
+<pre class="sh"><code>$ heroku pg:psql --app &lt;your-app&gt;
+=# CREATE EXTENSION postgis;
+...</code></pre>
+</section>
+<section class="level4" id="confirm-that-extension-was-created-1">
+<h4><a href="#confirm-that-extension-was-created-1">Confirm that extension was created</a></h4>
+<pre class="sh"><code>=# SELECT POSTGIS_FULL_VERSION();
+    NOTICE:  Function postgis_topology_scripts_installed() not found. Is topology
+    support enabled and topology.sql installed?
+    postgis_full_version
+    ------------------------------------------------------------------------------
+    POSTGIS=&quot;2.0.3 r11128&quot; GEOS=&quot;3.3.8-CAPI-1.7.8&quot; PROJ=&quot;Rel. 4.8.0, 6 March 2012&quot;
+    GDAL=&quot;GDAL 1.9.2, released 2012/10/08&quot; LIBXML=&quot;2.7.8&quot; LIBJSON=&quot;UNKNOWN&quot; RASTER
+    (raster lib from &quot;2.0.2 r10789&quot; need upgrade)
+    (1 row)
+
+=#
+...
+=# \quit</code></pre>
+</section>
+<section class="level4" id="create-an-initializer-to-set-the-database-adapter-on-heroku">
+<h4><a href="#create-an-initializer-to-set-the-database-adapter-on-heroku">Create an initializer to set the database adapter on Heroku</a></h4>
+<p>Set the Heroku database adapter and schema search path using an initializer:</p>
+<pre class="sourceCode ruby"><code class="sourceCode ruby"><span class="co"># config/initializers/database.rb</span>
+<span class="dt">Rails</span>.application.config.after_initialize <span class="kw">do</span>
+  <span class="dt">ActiveRecord</span>::<span class="dt">Base</span>.connection_pool.disconnect!
+
+  <span class="dt">ActiveSupport</span>.on_load(<span class="st">:active_record</span>) <span class="kw">do</span>
+    config = <span class="dt">Rails</span>.application.config.database_configuration[<span class="dt">Rails</span>.env]
+    config[<span class="st">'adapter'</span>] = <span class="st">'postgis'</span>
+    config[<span class="st">'schema_search_path'</span>] = <span class="st">'public, postgis'</span>
+    <span class="dt">ActiveRecord</span>::<span class="dt">Base</span>.establish_connection(config)
+  <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+</section>
+<section class="level4" id="push-to-heroku">
+<h4><a href="#push-to-heroku">Push to Heroku</a></h4>
+<pre class="sh"><code>$ git push staging master</code></pre>
+</section>
+</section>
+</section>
+</section>
+</body>
+</html>
