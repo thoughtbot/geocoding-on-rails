@@ -1,5 +1,6 @@
 % Geocoding on Rails
 % thoughtbot; Laila Winner; Josh Clayton
+% Cover by Devon St. Clair
 
 \clearpage
 
