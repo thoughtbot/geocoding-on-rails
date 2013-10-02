@@ -1,5 +1,5 @@
-[geocoding-on-rails-example-app-github]: https://github.com/thoughtbot/geocoding_on_rails/tree/master/example_app
-[geocoding-on-rails-example-app-readme]: https://github.com/thoughtbot/geocoding_on_rails/blob/master/example_app/README.md
+[geocoding-on-rails-example-app-github]: https://github.com/thoughtbot/geocoding-on-rails/tree/master/example_app
+[geocoding-on-rails-example-app-readme]: https://github.com/thoughtbot/geocoding-on-rails/blob/master/example_app/README.md
 
 [geocoder-github]: https://github.com/alexreisner/geocoder
 [geocoder-geocode-by-ip]: https://github.com/alexreisner/geocoder#request-geocoding-by-ip-address
