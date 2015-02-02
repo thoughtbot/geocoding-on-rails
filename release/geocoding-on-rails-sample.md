@@ -42,7 +42,7 @@ product.
 If you enjoy the sample, you can get access to the entire book and sample
 application at:
 
-<https://learn.thoughtbot.com/geocodingonrails>
+<http://geocodingonrails.com>
 
 As a purchaser of the book, you also get access to:
 
@@ -419,7 +419,7 @@ get access to the full content, the example application, ongoing updates, and
 the ability to get your questions about Ruby on Rails answered by us, you can
 pick it up on our website:
 
-<https://learn.thoughtbot.com/geocodingonrails>
+<http://geocodingonrails.com>
 
 [geocoding-on-rails-example-app-github]: https://github.com/thoughtbot/geocoding-on-rails/tree/master/example_app
 [geocoding-on-rails-example-app-readme]: https://github.com/thoughtbot/geocoding-on-rails/blob/master/example_app/README.md
